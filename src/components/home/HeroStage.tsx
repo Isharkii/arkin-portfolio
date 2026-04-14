@@ -159,23 +159,33 @@ export function HeroStage() {
               return (
                 <motion.div
                   key={project.id}
-                  // Arc position
+                  // Arc position wrapper — pointer-events:none so it never
+                  // intercepts hover; only the innermost card surface does.
+                  // z-index boosts to 30 when active so the card visually
+                  // rises above all siblings once hover is triggered.
                   initial={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0 }}
                   animate={{ x: arc.x, y: arc.y, rotate: arc.rotate, scale: arc.scale, opacity: 1 }}
                   exit={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0, transition: { duration: 0.16 } }}
                   transition={{ ...springGallery, delay: reduceMotion ? 0 : index * 0.06 }}
-                  style={{ willChange: "transform", zIndex: arc.zIndex, position: "absolute", left: "50%", top: "50%" }}
-                  // Desktop hover
-                  onHoverStart={() => setHoveredId(project.id)}
-                  onHoverEnd={() => setHoveredId(null)}
+                  style={{
+                    willChange: "transform",
+                    zIndex: isActive ? 30 : arc.zIndex,
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    pointerEvents: "none",   // transparent — let events reach the card surface
+                  }}
                 >
-                  {/* Float oscillation */}
+                  {/* Float oscillation — also transparent to pointer events */}
                   <motion.div
                     animate={reduceMotion ? {} : { y: [0, -10, 0] }}
                     transition={{ duration: 2.6 + index * 0.22, repeat: Infinity, ease: "easeInOut", delay: index * 0.35 }}
-                    style={{ willChange: "transform" }}
+                    style={{ willChange: "transform", pointerEvents: "none" }}
                   >
-                    {/* Parallax + active scale + sibling blur */}
+                    {/* Parallax + active scale + sibling blur.
+                        THIS is the hit surface — pointer-events:auto here only.
+                        Using native onMouseEnter/Leave instead of Framer Motion
+                        onHoverStart/End for reliable cross-browser hit detection. */}
                     <motion.div
                       animate={{
                         x: pX,
@@ -189,7 +199,9 @@ export function HeroStage() {
                         scale:  { type: "spring", stiffness: 300, damping: 20 },
                         filter: { duration: 0.2 },
                       }}
-                      style={{ willChange: "transform" }}
+                      style={{ willChange: "transform", pointerEvents: "auto", cursor: "pointer" }}
+                      onMouseEnter={() => setHoveredId(project.id)}
+                      onMouseLeave={() => setHoveredId(null)}
                     >
                       <ProjectCard project={project} isCenter={isCenter} className="-translate-x-1/2 -translate-y-1/2" />
                     </motion.div>
