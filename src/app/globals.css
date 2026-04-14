@@ -65,6 +65,20 @@ a {
   text-decoration: none;
 }
 
+/* Logo colour adaptation
+   Uses brightness(0) to force the PNG to a solid colour, then inverts for
+   dark mode. Transition matches the theme switch duration on body.
+   System preference is applied by the inline script in layout.tsx before
+   first paint, so there is no flash of the wrong colour on load. */
+.logo-adaptive {
+  filter: brightness(0);
+  transition: filter 200ms ease;
+}
+
+html[data-theme="dark"] .logo-adaptive {
+  filter: brightness(0) invert(1);
+}
+
 ::selection {
   background: color-mix(in srgb, var(--foreground) 12%, transparent);
 }
