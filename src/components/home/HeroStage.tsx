@@ -106,6 +106,14 @@ const springGallery = { type: "spring", stiffness: 100, damping: 20 } as const;
 /** Slow-follow for mouse parallax */
 const springParallax = { type: "spring", stiffness: 60, damping: 20 } as const;
 
+// ─── Carousel variants (mobile swipe) ──────────────────────────────────────────
+
+const carouselVariants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "75%" : "-75%", opacity: 0, scale: 0.88 }),
+  center: { x: 0, opacity: 1, scale: 1 },
+  exit: (dir: number) => ({ x: dir > 0 ? "-75%" : "75%", opacity: 0, scale: 0.88 }),
+};
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 type Phase = 1 | 2 | 3;
@@ -114,6 +122,9 @@ export function HeroStage() {
   const [phase, setPhase] = useState<Phase>(1);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 }); // normalised −1 … +1
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(CENTER_INDEX);
+  const [swipeDir, setSwipeDir] = useState(0); // 1 = forward, -1 = back
   const reduceMotion = useReducedMotion();
 
   // ── Phase sequencing ──────────────────────────────────────────────────────────
@@ -133,6 +144,15 @@ export function HeroStage() {
     };
   }, [reduceMotion]);
 
+  // ── Mobile detection ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
   // ── Mouse parallax ────────────────────────────────────────────────────────────
   useEffect(() => {
     if (reduceMotion) return;
@@ -147,6 +167,18 @@ export function HeroStage() {
     window.addEventListener("mousemove", onMouseMove);
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, [reduceMotion]);
+
+  // ── Carousel swipe handler ────────────────────────────────────────────────────
+  function handleSwipe(_: unknown, info: { offset: { x: number } }) {
+    const threshold = 40;
+    if (info.offset.x < -threshold && activeIndex < TOTAL - 1) {
+      setSwipeDir(1);
+      setActiveIndex((i) => i + 1);
+    } else if (info.offset.x > threshold && activeIndex > 0) {
+      setSwipeDir(-1);
+      setActiveIndex((i) => i - 1);
+    }
+  }
 
   return (
     <div className="relative h-full w-full">
@@ -174,110 +206,102 @@ export function HeroStage() {
         )}
       </AnimatePresence>
 
-      {/* ── Phase 3: Arc gallery ────────────────────────────────────────────────
-          7 cards fan out from center into a horizontal arc. Each card gets:
-          - Arc position from getArcStyle() (vw/vh, responsive)
-          - Stagger delay so cards spread sequentially
-          - Continuous float oscillation (staggered per card, organic feel)
-          - Mouse parallax offset on an inner wrapper (px, slow-follow spring)
-          - Hover: scale 1.05 + blur for non-hovered siblings
-          - Drag: horizontal swipe to pan the arc on mobile */}
+      {/* ── Phase 3: Desktop arc gallery ────────────────────────────────────────
+          7 cards fan out in a horizontal arc. Float + parallax + hover blur. */}
       <AnimatePresence>
-        {phase === 3 && (
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: -160, right: 160 }}
-            dragElastic={0.12}
-            dragMomentum
-            dragTransition={{ bounceStiffness: 200, bounceDamping: 30 }}
-            onDragStart={() => setHoveredId(null)}
-            className="absolute inset-0"
-          >
-            {galleryProjects.map((project, index) => {
-              const arc = getArcStyle(index, TOTAL);
-              const isCenter = index === CENTER_INDEX;
-              const isHovered = hoveredId === project.id;
-              const isBlurred = hoveredId !== null && !isHovered;
+        {phase === 3 && !isMobile &&
+          galleryProjects.map((project, index) => {
+            const arc = getArcStyle(index, TOTAL);
+            const isCenter = index === CENTER_INDEX;
+            const isHovered = hoveredId === project.id;
+            const isBlurred = hoveredId !== null && !isHovered;
 
-              // Parallax depth: center cards follow mouse more, edges less
-              const depth = 1 - Math.abs(index - CENTER_INDEX) / TOTAL;
-              const pX = reduceMotion ? 0 : mouse.x * 6 * depth;
-              const pY = reduceMotion ? 0 : mouse.y * 4 * depth;
+            const depth = 1 - Math.abs(index - CENTER_INDEX) / TOTAL;
+            const pX = reduceMotion ? 0 : mouse.x * 6 * depth;
+            const pY = reduceMotion ? 0 : mouse.y * 4 * depth;
 
-              return (
+            return (
+              <motion.div
+                key={project.id}
+                initial={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0 }}
+                animate={{ x: arc.x, y: arc.y, rotate: arc.rotate, scale: arc.scale, opacity: 1 }}
+                exit={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0, transition: { duration: 0.16 } }}
+                transition={{ ...springGallery, delay: reduceMotion ? 0 : index * 0.06 }}
+                style={{ willChange: "transform", zIndex: arc.zIndex, position: "absolute", left: "50%", top: "50%" }}
+                onHoverStart={() => setHoveredId(project.id)}
+                onHoverEnd={() => setHoveredId(null)}
+              >
+                {/* Float oscillation — staggered per card */}
                 <motion.div
-                  key={project.id}
-                  // Arc position — starts collapsed at center, expands to arc
-                  initial={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0 }}
-                  animate={{
-                    x: arc.x,
-                    y: arc.y,
-                    rotate: arc.rotate,
-                    scale: arc.scale,
-                    opacity: 1,
-                  }}
-                  exit={{
-                    x: 0,
-                    y: 0,
-                    rotate: 0,
-                    scale: 0.6,
-                    opacity: 0,
-                    transition: { duration: 0.16 },
-                  }}
-                  transition={{
-                    ...springGallery,
-                    delay: reduceMotion ? 0 : index * 0.06,
-                  }}
-                  style={{
-                    willChange: "transform",
-                    zIndex: arc.zIndex,
-                    position: "absolute",
-                    left: "50%",
-                    top: "50%",
-                  }}
-                  onHoverStart={() => setHoveredId(project.id)}
-                  onHoverEnd={() => setHoveredId(null)}
+                  animate={reduceMotion ? {} : { y: [0, -10, 0] }}
+                  transition={{ duration: 2.6 + index * 0.22, repeat: Infinity, ease: "easeInOut", delay: index * 0.35 }}
+                  style={{ willChange: "transform" }}
                 >
-                  {/* Float oscillation — looping y bobble, staggered per card */}
+                  {/* Parallax + hover scale + sibling blur */}
                   <motion.div
-                    animate={reduceMotion ? {} : { y: [0, -10, 0] }}
-                    transition={{
-                      duration: 2.6 + index * 0.22,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: index * 0.35,
-                    }}
+                    animate={{ x: pX, y: pY, scale: isHovered ? 1.05 : 1, filter: isBlurred ? "blur(3px)" : "blur(0px)" }}
+                    transition={{ x: springParallax, y: springParallax, scale: { type: "spring", stiffness: 300, damping: 20 }, filter: { duration: 0.2 } }}
                     style={{ willChange: "transform" }}
                   >
-                    {/* Parallax + hover scale + sibling blur */}
-                    <motion.div
-                      animate={{
-                        x: pX,
-                        y: pY,
-                        scale: isHovered ? 1.05 : 1,
-                        filter: isBlurred ? "blur(3px)" : "blur(0px)",
-                      }}
-                      transition={{
-                        x: springParallax,
-                        y: springParallax,
-                        scale: { type: "spring", stiffness: 300, damping: 20 },
-                        filter: { duration: 0.2 },
-                      }}
-                      style={{ willChange: "transform" }}
-                    >
-                      <ProjectCard
-                        project={project}
-                        isCenter={isCenter}
-                        className="-translate-x-1/2 -translate-y-1/2"
-                      />
-                    </motion.div>
+                    <ProjectCard project={project} isCenter={isCenter} className="-translate-x-1/2 -translate-y-1/2" />
                   </motion.div>
                 </motion.div>
-              );
-            })}
-          </motion.div>
-        )}
+              </motion.div>
+            );
+          })}
       </AnimatePresence>
+
+      {/* ── Phase 3: Mobile swipe carousel ──────────────────────────────────────
+          One card visible at a time. Swipe left/right to step through all 7.
+          AnimatePresence key on activeIndex drives the slide-in/out transition. */}
+      {phase === 3 && isMobile && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden">
+          <div className="relative flex h-full w-full items-center justify-center">
+            <AnimatePresence initial={false} custom={swipeDir} mode="popLayout">
+              <motion.div
+                key={activeIndex}
+                custom={swipeDir}
+                variants={carouselVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: "spring", stiffness: 280, damping: 28 }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.18}
+                onDragEnd={handleSwipe}
+                style={{ willChange: "transform", position: "absolute" }}
+              >
+                {/* Float oscillation on active card */}
+                <motion.div
+                  animate={reduceMotion ? {} : { y: [0, -10, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  style={{ willChange: "transform" }}
+                >
+                  <ProjectCard project={galleryProjects[activeIndex]} isCenter />
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-10 flex items-center gap-2">
+            {galleryProjects.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Go to card ${i + 1}`}
+                onClick={() => { setSwipeDir(i > activeIndex ? 1 : -1); setActiveIndex(i); }}
+                className={`rounded-full transition-all duration-300 ${
+                  i === activeIndex
+                    ? "h-2 w-6 bg-black/60"
+                    : "h-2 w-2 bg-black/20"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
