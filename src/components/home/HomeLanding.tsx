@@ -24,13 +24,13 @@ export default function HomeLanding() {
       {/* Warm bloom — top left */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-[-10%] top-[-12%] h-[32rem] w-[32rem] rounded-full bg-[var(--spot-b)] opacity-50 blur-3xl"
+        className="pointer-events-none absolute left-[-10%] top-[-12%] h-[clamp(14rem,30vw,32rem)] w-[clamp(14rem,30vw,32rem)] rounded-full bg-[var(--spot-b)] opacity-50 blur-3xl"
       />
 
       {/* Cool bloom — bottom right */}
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-[-18%] right-[-8%] h-[26rem] w-[26rem] rounded-full bg-[var(--spot-a)] opacity-50 blur-3xl"
+        className="pointer-events-none absolute bottom-[-18%] right-[-8%] h-[clamp(12rem,24vw,26rem)] w-[clamp(12rem,24vw,26rem)] rounded-full bg-[var(--spot-a)] opacity-50 blur-3xl"
       />
 
       {/* Fixed navigation overlay */}

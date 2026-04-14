@@ -176,7 +176,7 @@ export function SiteNavbar() {
             alt="PitchWorx"
             width={80}
             height={80}
-            className="logo-adaptive h-[80px] w-[80px] object-contain"
+            className="logo-adaptive h-[55px] w-[55px] object-contain sm:h-[65px] sm:w-[65px] md:h-[80px] md:w-[80px]"
             priority
           />
         </a>

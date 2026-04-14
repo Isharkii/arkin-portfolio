@@ -32,7 +32,9 @@ export function ProjectCard({
         shadow-[0_22px_60px_rgba(18,18,18,0.18)]
         transition-shadow duration-300
         hover:shadow-[0_36px_80px_rgba(18,18,18,0.30)]
-        ${isCenter ? "w-[180px] sm:w-[200px] md:w-[220px]" : "w-[148px] sm:w-[164px] md:w-[180px]"}
+        ${isCenter
+          ? "w-[160px] sm:w-[180px] md:w-[200px] lg:w-[220px] xl:w-[240px]"
+          : "w-[130px] sm:w-[148px] md:w-[164px] lg:w-[180px] xl:w-[196px]"}
         ${className}
       `}
     >
@@ -53,10 +55,10 @@ export function ProjectCard({
         />
 
         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-          <p className="font-ui text-[10px] uppercase tracking-[0.24em] text-white/70">
+          <p className="font-ui text-[9px] uppercase tracking-[0.24em] text-white/70 sm:text-[10px]">
             {project.eyebrow}
           </p>
-          <h3 className="font-display mt-2 text-[1.6rem] leading-[0.88] tracking-[-0.04em]">
+          <h3 className="font-display mt-1 text-[1.2rem] leading-[0.88] tracking-[-0.04em] sm:text-[1.4rem] md:text-[1.6rem]">
             {project.title}
           </h3>
         </div>

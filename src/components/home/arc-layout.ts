@@ -29,8 +29,16 @@ export function getArcStyle(index: number, total: number): ArcCardStyle {
   const mid = (total - 1) / 2;          // 3.0 for 7 cards
   const t = (index - mid) / mid;         // normalised: −1 … +1
 
-  // Linear horizontal spread — 28vw keeps edge cards on-screen at mobile widths
-  const x = `${t * 28}vw`;
+  // Horizontal spread: vw-based so it scales with viewport, but capped at
+  // ±480px so cards don't drift too far apart on ultrawide screens (2560px+).
+  // min()/max() picks the less extreme value depending on sign of t.
+  const spreadVw = t * 28;
+  const spreadPx = t * 480;
+  const x = t > 0
+    ? `min(${spreadVw}vw, ${spreadPx}px)`
+    : t < 0
+      ? `max(${spreadVw}vw, ${spreadPx}px)`
+      : "0px";
 
   // Linear rotation: −12deg at left edge, 0 at center, +12deg at right edge
   const rotate = t * 12;
