@@ -3,25 +3,98 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #121212;
+  --muted: #6f6f6a;
+  --line: rgba(18, 18, 18, 0.08);
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-strong: #111111;
+  --surface-contrast: #fafafa;
+  --surface-soft: #f7f1eb;
+  --surface-soft-alt: #eef3ef;
+  --spot-a: #d8e7dc;
+  --spot-b: #f0d9ca;
+  --grid-line: rgba(18, 18, 18, 0.04);
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html[data-theme="dark"] {
+  --background: #111111;
+  --foreground: #f3efe9;
+  --muted: #b3aba1;
+  --line: rgba(243, 239, 233, 0.14);
+  --surface: rgba(22, 22, 22, 0.72);
+  --surface-strong: #f3efe9;
+  --surface-contrast: #111111;
+  --surface-soft: #1d1b19;
+  --surface-soft-alt: #18211d;
+  --spot-a: #2b4236;
+  --spot-b: #51362c;
+  --grid-line: rgba(243, 239, 233, 0.05);
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  /* overflow: hidden removed — component-level overflow-hidden on the section
+     handles visual containment. Removing it here prevents mobile browsers
+     from clipping content when the address bar collapses/expands. */
+  overflow-x: hidden;
 }
 
 body {
+  min-height: 100vh;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family:
+    var(--font-geist-sans),
+    "Helvetica Neue",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+#__next {
+  height: 100%;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .font-ui {
+    font-family:
+      var(--font-geist-sans),
+      "Helvetica Neue",
+      system-ui,
+      sans-serif;
+  }
+
+  .font-display {
+    font-family: var(--font-halant), Georgia, serif;
+  }
+
+  .bg-paper-grid {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-position: center;
+    background-size: 44px 44px;
   }
 }
