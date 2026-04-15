@@ -8,18 +8,14 @@ const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
-});
-
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+  display: "swap",
 });
 
 const halant = Halant({
   variable: "--font-halant",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -46,7 +42,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${halant.variable} antialiased`}
+        className={`${geistSans.variable} ${halant.variable} antialiased`}
       >
         {/* Navbar lives here — outside template.tsx — so it never
             participates in page-to-page slide transitions. */}
