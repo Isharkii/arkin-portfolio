@@ -213,12 +213,9 @@ export function HeroStage() {
             })}
             {/* ── Segmented toggle — floats below the arc ────────────────────────
                 Fades + slides in after cards are fully spread (0.55s delay).
-                z-index 5 keeps it above the background but below card stack. */}
+                z-index 35: must be above the drag layer (z-30) so pointer
+                events reach the buttons on both desktop and mobile. */}
             <motion.div
-              // x: "-50%" is handled by Framer Motion so it composes cleanly
-              // with the y spring — no CSS transform collision.
-              // bottom lives in className only so Tailwind responsive
-              // breakpoints can override it (inline style beats Tailwind).
               initial={{ opacity: 0, y: 20, x: "-50%" }}
               animate={{ opacity: 1, y: 0,  x: "-50%" }}
               exit={{ opacity: 0, y: 20, x: "-50%", transition: { duration: 0.16 } }}
@@ -227,7 +224,7 @@ export function HeroStage() {
                 y:       { type: "spring", stiffness: 120, damping: 18, delay: reduceMotion ? 0 : 0.55 },
               }}
               className="absolute bottom-[12%] sm:bottom-[14%]"
-              style={{ left: "50%", zIndex: 5 }}
+              style={{ left: "50%", zIndex: 35 }}
             >
               <SegmentedToggle activeTab={activeTab} onChange={setActiveTab} />
             </motion.div>
