@@ -207,12 +207,18 @@ export function SiteNavbar() {
           >
             About
           </Link>
-          <NavAction
+          <button
+            type="button"
             onClick={() => togglePanel("login")}
-            ariaExpanded={activePanel === "login"}
+            aria-expanded={activePanel === "login"}
+            aria-label="Login"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/78 text-black/62 shadow-[0_12px_30px_rgba(18,18,18,0.06)] backdrop-blur-md transition-colors duration-200 hover:text-black/84"
           >
-            Login
-          </NavAction>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden>
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </button>
           <button
             type="button"
             onClick={toggleTheme}
