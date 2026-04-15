@@ -124,7 +124,9 @@ export function HeroStage() {
             style={{ willChange: "transform", zIndex: 20 }}
             className="absolute left-1/2 top-1/2"
           >
-            <ProjectCard project={leadProject} isCenter priority className="-translate-x-1/2 -translate-y-1/2" />
+            <div style={{ transform: "translate(-50%, -50%)" }}>
+              <ProjectCard project={leadProject} isCenter priority />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -184,29 +186,34 @@ export function HeroStage() {
                     transition={{ duration: 2.6 + index * 0.22, repeat: Infinity, ease: "easeInOut", delay: index * 0.35 }}
                     style={{ willChange: "transform", pointerEvents: "none" }}
                   >
-                    {/* Parallax + active scale + sibling blur.
-                        THIS is the hit surface — pointer-events:auto here only.
-                        Using native onMouseEnter/Leave instead of Framer Motion
-                        onHoverStart/End for reliable cross-browser hit detection. */}
-                    <motion.div
-                      animate={{
-                        x: pX,
-                        y: pY,
-                        scale: isActive ? 1.05 : 1,
-                        filter: isBlurred ? "blur(3px)" : "blur(0px)",
-                      }}
-                      transition={{
-                        x: springParallax,
-                        y: springParallax,
-                        scale:  { type: "spring", stiffness: 300, damping: 20 },
-                        filter: { duration: 0.2 },
-                      }}
-                      style={{ willChange: "transform", pointerEvents: "auto", cursor: "pointer" }}
-                      onMouseEnter={() => setHoveredId(project.id)}
-                      onMouseLeave={() => setHoveredId(null)}
-                    >
-                      <ProjectCard project={project} isCenter={isCenter} className="-translate-x-1/2 -translate-y-1/2" />
-                    </motion.div>
+                    {/* Centering wrapper — shifts layout origin so the hit box
+                        matches the card's visual center. CSS translate here moves
+                        both visual position AND bounding rect, unlike putting
+                        -translate-x/y on the child article where only visual
+                        position moves but the parent's hit box stays at (0,0). */}
+                    <div style={{ transform: "translate(-50%, -50%)", pointerEvents: "none" }}>
+                      {/* Parallax + active scale + sibling blur.
+                          THIS is the hit surface — pointer-events:auto here only. */}
+                      <motion.div
+                        animate={{
+                          x: pX,
+                          y: pY,
+                          scale: isActive ? 1.05 : 1,
+                          filter: isBlurred ? "blur(3px)" : "blur(0px)",
+                        }}
+                        transition={{
+                          x: springParallax,
+                          y: springParallax,
+                          scale:  { type: "spring", stiffness: 300, damping: 20 },
+                          filter: { duration: 0.2 },
+                        }}
+                        style={{ willChange: "transform", pointerEvents: "auto", cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredId(project.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                      >
+                        <ProjectCard project={project} isCenter={isCenter} />
+                      </motion.div>
+                    </div>
                   </motion.div>
                 </motion.div>
               );
