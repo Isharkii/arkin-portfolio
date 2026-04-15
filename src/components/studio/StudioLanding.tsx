@@ -447,65 +447,83 @@ export default function StudioLanding() {
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute inset-0 flex flex-col"
+                  className="absolute inset-0"
                 >
-                  {/* Tab row — 5 service tabs + Custom/AI mini toggle */}
-                  <div className="flex h-12 shrink-0 items-stretch overflow-hidden bg-[var(--folder-bg)] sm:h-14 md:h-16">
+                  {/* Gooey filter layer — background colour blocks only, no text */}
+                  <div style={{ filter: "url(#studio-goo)" }}>
+                    <div className="flex w-full">
+                      {SERVICE_TABS.map((tab) => (
+                        <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
+                          {activeDetailTab === tab.id && (
+                            <motion.div
+                              layoutId="detail-tab-bg"
+                              className="absolute inset-0 bg-[var(--folder-bg)]"
+                              transition={{ type: "spring", bounce: 0, duration: 0.36 }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="h-[340px] w-full bg-[var(--folder-bg)] sm:h-[400px] md:h-[460px]" />
+                  </div>
 
-                    {/* Scrollable service tabs */}
-                    <div className="flex flex-1 overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-                      {SERVICE_TABS.map((tab) => {
-                        const isActive = activeDetailTab === tab.id;
-                        return (
+                  {/* Tab labels overlay — sits on top, unfiltered */}
+                  <div className="absolute left-0 right-0 top-0 z-10 flex h-12 sm:h-14 md:h-16">
+                    {SERVICE_TABS.map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActiveDetailTab(tab.id)}
+                        className="flex flex-1 cursor-pointer items-center justify-center"
+                      >
+                        <span className={`font-ui text-[10px] uppercase tracking-[0.2em] transition-colors duration-200 sm:text-[11px] md:text-[12px] ${
+                          activeDetailTab === tab.id
+                            ? "text-[var(--foreground)]"
+                            : "text-[var(--muted)]"
+                        }`}>
+                          {tab.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Content overlay — unfiltered */}
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 flex flex-col">
+                    {/* Custom / AI mini toggle — top-right of content area */}
+                    <div className="flex justify-end px-5 sm:px-7 md:px-9 pt-4 sm:pt-5">
+                      <div className="flex items-center gap-[3px] rounded-full border border-[var(--line)] bg-[var(--background)]/40 p-[3px] backdrop-blur-sm">
+                        {TABS.map((tab, i) => (
                           <button
                             key={tab.id}
                             type="button"
-                            onClick={() => setActiveDetailTab(tab.id)}
-                            className={`flex h-full flex-none items-center px-4 sm:px-5 md:px-6 font-ui text-[11px] uppercase tracking-[0.2em] whitespace-nowrap transition-colors duration-200 sm:text-[12px] md:text-[13px] border-t-2 ${
-                              isActive
-                                ? "border-[var(--foreground)] text-[var(--foreground)]"
-                                : "border-transparent text-[var(--muted)] hover:text-[var(--foreground)]/60"
+                            onClick={() => setActiveIndex(i as 0 | 1)}
+                            className={`rounded-full px-3 py-1 font-ui text-[9px] uppercase tracking-[0.18em] transition-colors duration-200 sm:text-[10px] ${
+                              activeIndex === i
+                                ? "bg-[var(--foreground)] text-[var(--background)]"
+                                : "text-[var(--muted)]"
                             }`}
                           >
                             {tab.label}
                           </button>
-                        );
-                      })}
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Custom / AI mini toggle */}
-                    <div className="flex shrink-0 items-center gap-[3px] border-l border-[var(--line)] px-3 sm:px-4">
-                      {TABS.map((tab, i) => (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => setActiveIndex(i as 0 | 1)}
-                          className={`rounded-full px-3 py-1 font-ui text-[10px] uppercase tracking-[0.18em] transition-colors duration-200 sm:text-[11px] ${
-                            activeIndex === i
-                              ? "bg-[var(--foreground)] text-[var(--background)]"
-                              : "text-[var(--muted)]"
-                          }`}
+                    {/* Preview content */}
+                    <div className="flex flex-1 items-center justify-center p-5 sm:p-7 md:p-9">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={activeDetailTab + activeTabId}
+                          initial={{ opacity: 0, y: 16, filter: "blur(6px)" }}
+                          animate={{ opacity: 1, y: 0,  filter: "blur(0px)" }}
+                          exit={{    opacity: 0, y: -10, filter: "blur(6px)" }}
+                          transition={{ duration: 0.2, ease: "easeOut" }}
+                          className="w-full"
                         >
-                          {tab.label}
-                        </button>
-                      ))}
+                          {PREVIEWS[activeDetailTab]}
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
-                  </div>
-
-                  {/* Content panel */}
-                  <div className="flex-1 overflow-hidden bg-[var(--folder-bg)]">
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={activeDetailTab + activeTabId}
-                        initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
-                        animate={{ opacity: 1, y: 0,  filter: "blur(0px)" }}
-                        exit={{    opacity: 0, y: -12, filter: "blur(6px)" }}
-                        transition={{ duration: 0.22, ease: "easeOut" }}
-                        className="flex h-full items-center justify-center p-6 sm:p-8 md:p-10"
-                      >
-                        {PREVIEWS[activeDetailTab]}
-                      </motion.div>
-                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
