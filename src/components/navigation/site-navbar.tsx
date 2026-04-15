@@ -177,12 +177,12 @@ export function SiteNavbar() {
         </Link>
 
         <nav className="hidden items-center gap-5 md:flex">
-          <a
-            href="mailto:hello@pitchworx.com?subject=Get%20Started"
+          <button
+            type="button"
             className="font-ui rounded-full bg-[#121212] px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-[#FAFAFA] transition-transform duration-200 hover:-translate-y-0.5"
           >
             Get Started
-          </a>
+          </button>
           <Link
             href="/services"
             className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
@@ -195,12 +195,12 @@ export function SiteNavbar() {
           >
             Pricing
           </NavAction>
-          <a
-            href="mailto:hello@pitchworx.com"
+          <button
+            type="button"
             className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
           >
             Contact
-          </a>
+          </button>
           <Link
             href="/about"
             className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
@@ -295,12 +295,12 @@ export function SiteNavbar() {
             className="pointer-events-auto mx-5 rounded-[1.75rem] border border-black/10 bg-white/84 p-5 shadow-[0_20px_60px_rgba(18,18,18,0.12)] backdrop-blur-xl sm:mx-8 md:hidden"
           >
             <div className="flex flex-col gap-3">
-              <a
-                href="mailto:hello@pitchworx.com?subject=Get%20Started"
+              <button
+                type="button"
                 className="font-ui rounded-full bg-[#121212] px-4 py-3 text-center text-[11px] uppercase tracking-[0.22em] text-[#FAFAFA]"
               >
                 Get Started
-              </a>
+              </button>
               <Link
                 href="/services"
                 className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
@@ -315,12 +315,12 @@ export function SiteNavbar() {
               >
                 Pricing
               </button>
-              <a
-                href="mailto:hello@pitchworx.com"
-                className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/62"
+              <button
+                type="button"
+                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
               >
                 Contact
-              </a>
+              </button>
               <Link
                 href="/about"
                 className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
