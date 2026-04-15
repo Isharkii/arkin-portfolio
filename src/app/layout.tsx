@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Halant } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
+import { SiteNavbar } from "@/components/navigation/site-navbar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -47,6 +48,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${halant.variable} antialiased`}
       >
+        {/* Navbar lives here — outside template.tsx — so it never
+            participates in page-to-page slide transitions. */}
+        <SiteNavbar />
         {children}
       </body>
     </html>

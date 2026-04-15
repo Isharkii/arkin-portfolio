@@ -9,7 +9,6 @@
  */
 
 import { AuroraBackground } from "@/components/ui/aurora-background";
-import { SiteNavbar } from "@/components/navigation/site-navbar";
 import { HeroStage } from "./HeroStage";
 
 export default function HomeLanding() {
@@ -32,9 +31,6 @@ export default function HomeLanding() {
         aria-hidden
         className="pointer-events-none absolute bottom-[-18%] right-[-8%] h-[clamp(12rem,24vw,26rem)] w-[clamp(12rem,24vw,26rem)] rounded-full bg-[var(--spot-a)] opacity-50 blur-3xl"
       />
-
-      {/* Fixed navigation overlay */}
-      <SiteNavbar />
 
       {/* Hero animation — fills full viewport */}
       <div className="absolute inset-0">

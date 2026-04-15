@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type ThemeMode = "light" | "dark";
@@ -170,7 +171,7 @@ export function SiteNavbar() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40">
       <div className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8">
-        <a href="/" className="flex items-center transition-opacity duration-200 hover:opacity-75">
+        <Link href="/" className="flex items-center transition-opacity duration-200 hover:opacity-75">
           <Image
             src="/logo.png"
             alt="PitchWorx"
@@ -179,7 +180,7 @@ export function SiteNavbar() {
             className="logo-adaptive h-[55px] w-[55px] object-contain sm:h-[65px] sm:w-[65px] md:h-[80px] md:w-[80px]"
             priority
           />
-        </a>
+        </Link>
 
         <nav className="hidden items-center gap-5 md:flex">
           <a
@@ -188,6 +189,12 @@ export function SiteNavbar() {
           >
             Get Started
           </a>
+          <Link
+            href="/services"
+            className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
+          >
+            Services
+          </Link>
           <NavAction
             onClick={() => togglePanel("pricing")}
             ariaExpanded={activePanel === "pricing"}
@@ -294,6 +301,13 @@ export function SiteNavbar() {
               >
                 Get Started
               </a>
+              <Link
+                href="/services"
+                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
+                onClick={() => setMenuOpen(false)}
+              >
+                Services
+              </Link>
               <button
                 type="button"
                 onClick={() => togglePanel("pricing")}
