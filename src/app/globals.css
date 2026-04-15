@@ -15,6 +15,9 @@
   --spot-a: #d8e7dc;
   --spot-b: #f0d9ca;
   --grid-line: rgba(18, 18, 18, 0.04);
+  /* Folder background — deliberately muted so it reads as a distinct
+     panel against the aurora background, not a bright white card. */
+  --folder-bg: #ddd8d1;
   color-scheme: light;
 }
 
@@ -28,6 +31,7 @@ html[data-theme="dark"] {
   --surface-contrast: #111111;
   --surface-soft: #1d1b19;
   --surface-soft-alt: #18211d;
+  --folder-bg: #1a1816;
   --spot-a: #2b4236;
   --spot-b: #51362c;
   --grid-line: rgba(243, 239, 233, 0.05);
