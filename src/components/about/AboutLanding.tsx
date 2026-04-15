@@ -14,7 +14,7 @@ export default function AboutLanding() {
   return (
     <AuroraBackground
       showRadialGradient
-      className="h-[100dvh] w-screen overflow-hidden !bg-[var(--background)] text-[var(--foreground)]"
+      className="!h-auto min-h-[100dvh] w-screen md:!h-[100dvh] md:overflow-hidden !bg-[var(--background)] text-[var(--foreground)]"
     >
       {/* Paper grid */}
       <div aria-hidden className="bg-paper-grid pointer-events-none absolute inset-0 opacity-40" />
@@ -25,7 +25,7 @@ export default function AboutLanding() {
       <div aria-hidden className="pointer-events-none absolute bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
 
       {/* Content */}
-      <div className="relative flex h-full flex-col items-center justify-center px-6 sm:px-10 md:px-16">
+      <div className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center px-6 py-[120px] sm:px-10 sm:py-[130px] md:h-full md:min-h-0 md:px-16 md:py-0">
         <div className="w-full max-w-[860px]">
 
           {/* Eyebrow */}
