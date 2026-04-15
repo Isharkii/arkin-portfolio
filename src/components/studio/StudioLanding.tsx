@@ -281,7 +281,7 @@ export default function StudioLanding() {
       <GooeyFilter id="studio-goo" strength={screenSize.lessThan("md") ? 8 : 14} />
 
       {/* Shell */}
-      <div className="relative flex h-full flex-col pt-[120px] sm:pt-[130px] md:pt-[144px] px-5 sm:px-6 md:px-[60px]">
+      <div className="relative flex h-full flex-col pt-[100px] sm:pt-[112px] md:pt-[128px] px-5 sm:px-6 md:px-[60px]">
 
         {/* Close / Back button */}
         <motion.div
@@ -311,7 +311,7 @@ export default function StudioLanding() {
             animate={{ opacity: 1, y: 0  }}
             transition={{ duration: 0.44, delay: 0.1, ease: "easeOut" }}
             /* overflow-hidden clips the horizontal slide */
-            className="relative w-[92vw] max-w-[1160px] overflow-hidden h-[388px] sm:h-[456px] md:h-[524px]"
+            className="relative w-[92vw] max-w-[1160px] overflow-hidden h-[clamp(17rem,52vh,34rem)]"
           >
             <AnimatePresence custom={slideDir} mode="wait" initial={false}>
 
@@ -327,8 +327,8 @@ export default function StudioLanding() {
                   className="absolute inset-0"
                 >
                   {/* Gooey filter — background colour blocks only */}
-                  <div style={{ filter: "url(#studio-goo)" }}>
-                    <div className="flex w-full">
+                  <div style={{ filter: "url(#studio-goo)" }} className="flex h-full flex-col">
+                    <div className="flex w-full shrink-0">
                       {TABS.map((tab, index) => (
                         <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
                           {activeIndex === index && (
@@ -341,7 +341,7 @@ export default function StudioLanding() {
                         </div>
                       ))}
                     </div>
-                    <div className="h-[340px] w-full bg-[var(--folder-bg)] sm:h-[400px] md:h-[460px]" />
+                    <div className="flex-1 w-full bg-[var(--folder-bg)]" />
                   </div>
 
                   {/* Logo + text content overlay (unfiltered) */}
@@ -370,9 +370,9 @@ export default function StudioLanding() {
                             onMouseEnter={() => setHoveredId(service.id as ServiceId)}
                             onMouseLeave={() => setHoveredId(null)}
                             onClick={() => openDetail(service.id as ServiceId)}
-                            className="flex cursor-pointer items-center justify-center rounded-2xl border border-black/[0.12] dark:border-white/20 bg-[var(--background)]/50 backdrop-blur-sm h-[64px] w-[64px] sm:h-[78px] sm:w-[78px] md:h-[92px] md:w-[92px]"
+                            className="flex cursor-pointer items-center justify-center rounded-2xl border border-black/[0.12] dark:border-white/20 bg-[var(--background)]/50 backdrop-blur-sm h-[clamp(3.5rem,6vw,5.75rem)] w-[clamp(3.5rem,6vw,5.75rem)]"
                           >
-                            <div className="h-[26px] w-[26px] text-[var(--foreground)]/75 sm:h-[32px] sm:w-[32px] md:h-[38px] md:w-[38px]">
+                            <div className="h-[clamp(1.4rem,2.2vw,2.4rem)] w-[clamp(1.4rem,2.2vw,2.4rem)] text-[var(--foreground)]/75">
                               {service.icon}
                             </div>
                           </motion.div>
@@ -450,8 +450,8 @@ export default function StudioLanding() {
                   className="absolute inset-0"
                 >
                   {/* Gooey filter layer — background colour blocks only, no text */}
-                  <div style={{ filter: "url(#studio-goo)" }}>
-                    <div className="flex w-full">
+                  <div style={{ filter: "url(#studio-goo)" }} className="flex h-full flex-col">
+                    <div className="flex w-full shrink-0">
                       {SERVICE_TABS.map((tab) => (
                         <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
                           {activeDetailTab === tab.id && (
@@ -464,7 +464,7 @@ export default function StudioLanding() {
                         </div>
                       ))}
                     </div>
-                    <div className="h-[340px] w-full bg-[var(--folder-bg)] sm:h-[400px] md:h-[460px]" />
+                    <div className="flex-1 w-full bg-[var(--folder-bg)]" />
                   </div>
 
                   {/* Tab labels overlay — sits on top, unfiltered */}

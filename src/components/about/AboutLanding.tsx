@@ -25,7 +25,7 @@ export default function AboutLanding() {
       <div aria-hidden className="pointer-events-none absolute bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
 
       {/* Content */}
-      <div className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center px-6 py-[120px] sm:px-10 sm:py-[130px] md:h-full md:min-h-0 md:px-16 md:py-0">
+      <div className="relative flex min-h-[100dvh] w-full flex-col items-center justify-center px-6 py-[100px] sm:px-10 sm:py-[110px] md:h-full md:min-h-0 md:px-16 md:py-0">
         <div className="w-full max-w-[860px]">
 
           {/* Eyebrow */}
@@ -43,7 +43,7 @@ export default function AboutLanding() {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
-            className="font-display mt-4 text-[2.4rem] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)] sm:text-[3.2rem] md:text-[4rem]"
+            className="font-display mt-4 text-[clamp(1.5rem,4vw,4rem)] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)]"
           >
             We bring the oomph
             <br />
@@ -63,7 +63,7 @@ export default function AboutLanding() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.34, ease: "easeOut" }}
-            className="font-ui mt-8 max-w-[600px] text-[14px] leading-[1.75] text-[var(--muted)] sm:text-[15px] md:text-[16px]"
+            className="font-ui mt-8 max-w-[600px] text-[clamp(13px,1.1vw,16px)] leading-[1.75] text-[var(--muted)]"
           >
             As a leading presentation design agency, PitchWorx crafts visually
             compelling and engaging slides for some of the world&apos;s most
@@ -87,7 +87,7 @@ export default function AboutLanding() {
                 transition={{ duration: 0.4, delay: 0.48 + i * 0.07, ease: "easeOut" }}
                 className="flex flex-col gap-1"
               >
-                <span className="font-display text-[2rem] leading-none tracking-[-0.03em] text-[var(--foreground)] sm:text-[2.4rem]">
+                <span className="font-display text-[clamp(1.4rem,2.5vw,2.4rem)] leading-none tracking-[-0.03em] text-[var(--foreground)]">
                   {stat.value}
                 </span>
                 <span className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">

@@ -33,8 +33,8 @@ export function ProjectCard({
         transition-shadow duration-300
         hover:shadow-[0_36px_80px_rgba(18,18,18,0.30)]
         ${isCenter
-          ? "w-[160px] sm:w-[180px] md:w-[200px] lg:w-[220px] xl:w-[240px]"
-          : "w-[130px] sm:w-[148px] md:w-[164px] lg:w-[180px] xl:w-[196px]"}
+          ? "w-[clamp(9rem,14vw,15rem)]"
+          : "w-[clamp(7.5rem,11.5vw,12.5rem)]"}
         ${className}
       `}
     >

@@ -47,7 +47,7 @@ export default function ServicesLanding() {
           <p className="font-ui text-[10px] uppercase tracking-[0.32em] text-[var(--muted)]">
             What we create
           </p>
-          <h1 className="font-display text-[2.2rem] leading-[0.9] tracking-[-0.03em] text-[var(--foreground)] sm:text-[2.8rem] md:text-[3.4rem]">
+          <h1 className="font-display text-[clamp(1.5rem,3.2vw,3.4rem)] leading-[0.9] tracking-[-0.03em] text-[var(--foreground)]">
             Work that moves people.
           </h1>
         </motion.div>
