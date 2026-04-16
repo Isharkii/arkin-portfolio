@@ -41,6 +41,128 @@ function IconLayers() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full"><polygon points="12 2 2 7 12 12 22 7 12 2" /><polyline points="2 17 12 22 22 17" /><polyline points="2 12 12 17 22 12" /></svg>;
 }
 
+// ─── Presentation option icons ─────────────────────────────────────────────────
+
+function IconGenerate() {
+  return (
+    <svg viewBox="0 0 28 28" fill="none" className="h-full w-full">
+      <path d="M14 4L16.5 11.5L24 14L16.5 16.5L14 24L11.5 16.5L4 14L11.5 11.5L14 4Z" fill="currentColor" />
+      <path d="M22 19L23 22L26 23L23 24L22 27L21 24L18 23L21 22L22 19Z" fill="currentColor" opacity="0.55" />
+      <path d="M7 3L7.75 5.25L10 6L7.75 6.75L7 9L6.25 6.75L4 6L6.25 5.25L7 3Z" fill="currentColor" opacity="0.4" />
+    </svg>
+  );
+}
+function IconPasteText() {
+  return (
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+      <rect x="4" y="4" width="20" height="22" rx="3" strokeWidth="1.8" />
+      <line x1="8" y1="10" x2="20" y2="10" strokeWidth="1.8" />
+      <line x1="8" y1="14" x2="20" y2="14" strokeWidth="1.8" />
+      <line x1="8" y1="18" x2="15" y2="18" strokeWidth="1.8" />
+    </svg>
+  );
+}
+function IconTemplate() {
+  return (
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+      <rect x="3"  y="3"  width="10" height="10" rx="2.5" strokeWidth="1.8" />
+      <rect x="15" y="3"  width="10" height="10" rx="2.5" strokeWidth="1.8" />
+      <rect x="3"  y="15" width="10" height="10" rx="2.5" strokeWidth="1.8" />
+      <rect x="15" y="15" width="10" height="10" rx="2.5" strokeWidth="1.8" />
+    </svg>
+  );
+}
+function IconUpload() {
+  return (
+    <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" className="h-full w-full">
+      <path d="M5 19v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4" strokeWidth="1.8" />
+      <path d="M19 9L14 4L9 9" strokeWidth="1.8" />
+      <line x1="14" y1="4" x2="14" y2="19" strokeWidth="1.8" />
+    </svg>
+  );
+}
+
+// ─── Presentation option cards ─────────────────────────────────────────────────
+
+const PRESENTATION_OPTIONS = [
+  {
+    id:     "generate",
+    title:  "Generate",
+    desc:   "Create from a one-line prompt in a few seconds",
+    icon:   <IconGenerate />,
+    iconBg: "bg-violet-100 text-violet-600 dark:bg-violet-950/60 dark:text-violet-300",
+  },
+  {
+    id:     "text",
+    title:  "Paste in text",
+    desc:   "Create from notes, an outline, or existing content",
+    icon:   <IconPasteText />,
+    iconBg: "bg-blue-100 text-blue-600 dark:bg-blue-950/60 dark:text-blue-300",
+  },
+  {
+    id:     "template",
+    title:  "Create from template",
+    desc:   "Create using the structure or layouts from a template",
+    icon:   <IconTemplate />,
+    iconBg: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-300",
+  },
+  {
+    id:     "import",
+    title:  "Import file or URL",
+    desc:   "Enhance existing docs, presentations, or webpages",
+    icon:   <IconUpload />,
+    iconBg: "bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-300",
+  },
+] as const;
+
+const presentationCardVariants = {
+  hidden:  { opacity: 0, y: 16, scale: 0.97 },
+  visible: { opacity: 1, y: 0,  scale: 1,
+    transition: { duration: 0.34, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+};
+const presentationListVariants = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.06 } },
+};
+
+function AIPresentationCards() {
+  return (
+    <motion.div
+      variants={presentationListVariants}
+      initial="hidden"
+      animate="visible"
+      className="grid w-full grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4"
+    >
+      {PRESENTATION_OPTIONS.map((opt) => (
+        <motion.button
+          key={opt.id}
+          variants={presentationCardVariants}
+          whileHover={{
+            y: -5,
+            scale: 1.02,
+            transition: { type: "spring", stiffness: 420, damping: 22 },
+          }}
+          whileTap={{ scale: 0.97 }}
+          type="button"
+          className="flex flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--background)]/80 p-4 text-left shadow-[0_2px_8px_rgba(0,0,0,0.06)] backdrop-blur-sm transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] dark:bg-white/[0.05]"
+        >
+          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-2 ${opt.iconBg}`}>
+            {opt.icon}
+          </div>
+          <div className="space-y-1">
+            <p className="font-ui text-[12px] font-semibold leading-snug text-[var(--foreground)] sm:text-[13px]">
+              {opt.title}
+            </p>
+            <p className="font-ui text-[11px] leading-relaxed text-[var(--muted)] sm:text-[12px]">
+              {opt.desc}
+            </p>
+          </div>
+        </motion.button>
+      ))}
+    </motion.div>
+  );
+}
+
 // ─── Data ───────────────────────────────────────────────────────────────────────
 
 const SERVICES = [
@@ -520,7 +642,10 @@ export default function StudioLanding() {
                           transition={{ duration: 0.2, ease: "easeOut" }}
                           className="w-full"
                         >
-                          {PREVIEWS[activeDetailTab]}
+                          {activeTabId === "ai" && activeDetailTab === "presentation"
+                            ? <AIPresentationCards />
+                            : PREVIEWS[activeDetailTab]
+                          }
                         </motion.div>
                       </AnimatePresence>
                     </div>
