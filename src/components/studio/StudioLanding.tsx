@@ -260,11 +260,11 @@ function GenerateChatbox() {
         />
 
         {/* Theme selector */}
-        <div className="relative flex-1">
+        <div className="relative">
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
-            className="font-ui w-full appearance-none rounded-xl border border-[var(--line)] bg-[var(--background)]/60 px-3 py-2 text-[12px] text-[var(--foreground)] backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/25 sm:text-[13px]"
+            className="font-ui appearance-none rounded-xl border border-[var(--line)] bg-[var(--background)]/60 py-1.5 pl-3 pr-7 text-[11px] text-[var(--foreground)] backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/25 sm:text-[12px]"
           >
             {THEMES.map((t) => (
               <option key={t.value} value={t.value}>
@@ -272,8 +272,8 @@ function GenerateChatbox() {
               </option>
             ))}
           </select>
-          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)]/60">
-            <svg viewBox="0 0 10 6" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--muted)]/60">
+            <svg viewBox="0 0 10 6" className="h-2 w-2" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
               <path d="M1 1l4 4 4-4" />
             </svg>
           </div>
