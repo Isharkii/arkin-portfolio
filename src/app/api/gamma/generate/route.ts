@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export interface GammaSlide {
-  id: string;
+export interface GammaGenerateResponse {
+  gammaUrl: string;
+  exportUrl?: string;
   title: string;
-  body: string;
-  speakerNotes?: string;
-  imageUrl?: string;
-  layout?: string;
+  generationId: string;
 }
 
-export interface GammaGenerateResponse {
-  slides: GammaSlide[];
-  presentationId: string;
-  presentationUrl: string;
-  title: string;
+const GAMMA_API = "https://public-api.gamma.app/v1.0";
+const POLL_INTERVAL_MS = 3_000;
+const MAX_POLLS = 60; // 3 min max
+
+async function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 export async function POST(req: NextRequest) {
   const apiKey = process.env.GAMMA_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "GAMMA_API_KEY is not configured" },
+      { error: "GAMMA_API_KEY is not configured on the server." },
       { status: 500 },
     );
   }
@@ -29,85 +28,116 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { prompt, theme = "default" } = body;
+  const { prompt } = body;
   if (!prompt?.trim()) {
-    return NextResponse.json({ error: "prompt is required" }, { status: 400 });
+    return NextResponse.json({ error: "prompt is required." }, { status: 400 });
   }
 
+  // ── Step 1: kick off generation ──────────────────────────────────────────────
+  let createData: { generationId?: string; error?: string };
   try {
-    // Step 1 — create an outline / deck via Gamma's generation API
-    const gammaRes = await fetch("https://gamma.app/api/v1/generate", {
+    const createRes = await fetch(`${GAMMA_API}/generations`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "X-API-KEY": apiKey,
       },
       body: JSON.stringify({
-        text: prompt.trim(),
-        mode: "text",
-        theme,
+        inputText: prompt.trim(),
+        textMode: "generate",
+        format: "presentation",
       }),
     });
 
-    if (!gammaRes.ok) {
-      const errorText = await gammaRes.text().catch(() => "unknown error");
+    const raw = await createRes.text();
+
+    if (!createRes.ok) {
+      // Truncate potentially huge HTML error pages to a readable message
+      const msg = raw.length > 300 ? raw.slice(0, 300) + "…" : raw;
       return NextResponse.json(
-        { error: `Gamma API error ${gammaRes.status}: ${errorText}` },
-        { status: gammaRes.status },
+        { error: `Gamma rejected the request (${createRes.status}): ${msg}` },
+        { status: createRes.status },
       );
     }
 
-    const data = await gammaRes.json();
-
-    // Normalise the Gamma response — their API returns `data.deck.cards`
-    // Each card has: id, title, blocks (array of content blocks)
-    const deck = data?.data?.deck ?? data?.deck ?? data;
-    const rawCards: Array<Record<string, unknown>> = deck?.cards ?? deck?.slides ?? [];
-
-    const slides: GammaSlide[] = rawCards.map(
-      (card: Record<string, unknown>, i: number) => {
-        // Flatten block content into readable body text
-        const blocks = Array.isArray(card.blocks) ? card.blocks as Array<Record<string, unknown>> : [];
-        const body = blocks
-          .map((b: Record<string, unknown>) => {
-            if (typeof b.text === "string") return b.text;
-            if (typeof b.content === "string") return b.content;
-            if (Array.isArray(b.children))
-              return (b.children as Array<Record<string, unknown>>)
-                .map((c: Record<string, unknown>) => c.text ?? "")
-                .join(" ");
-            return "";
-          })
-          .filter(Boolean)
-          .join("\n\n");
-
-        return {
-          id: (card.id as string) ?? String(i),
-          title: (card.title as string) ?? (card.heading as string) ?? `Slide ${i + 1}`,
-          body,
-          speakerNotes: (card.speakerNotes as string) ?? (card.notes as string) ?? undefined,
-          imageUrl: (card.imageUrl as string) ?? (card.image as string) ?? undefined,
-          layout: (card.layout as string) ?? undefined,
-        };
-      },
-    );
-
-    const response: GammaGenerateResponse = {
-      slides,
-      presentationId: (deck?.id as string) ?? "",
-      presentationUrl: (deck?.url as string) ?? `https://gamma.app/deck/${deck?.id ?? ""}`,
-      title: (deck?.title as string) ?? prompt.slice(0, 80),
-    };
-
-    return NextResponse.json(response);
+    createData = JSON.parse(raw);
   } catch (err) {
-    console.error("[gamma/generate] unexpected error:", err);
+    console.error("[gamma] create request failed:", err);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
+      { error: "Could not reach the Gamma API. Check your network or API key." },
+      { status: 502 },
     );
   }
+
+  const generationId = createData.generationId;
+  if (!generationId) {
+    return NextResponse.json(
+      { error: "Gamma did not return a generationId." },
+      { status: 502 },
+    );
+  }
+
+  // ── Step 2: poll until complete ───────────────────────────────────────────────
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await sleep(POLL_INTERVAL_MS);
+
+    let pollData: {
+      status?: string;
+      gammaUrl?: string;
+      exportUrl?: string;
+      title?: string;
+      error?: string;
+    };
+
+    try {
+      const pollRes = await fetch(`${GAMMA_API}/generations/${generationId}`, {
+        headers: { "X-API-KEY": apiKey },
+      });
+
+      const raw = await pollRes.text();
+
+      if (!pollRes.ok) {
+        const msg = raw.length > 300 ? raw.slice(0, 300) + "…" : raw;
+        return NextResponse.json(
+          { error: `Gamma poll error (${pollRes.status}): ${msg}` },
+          { status: pollRes.status },
+        );
+      }
+
+      pollData = JSON.parse(raw);
+    } catch (err) {
+      console.error("[gamma] poll request failed:", err);
+      return NextResponse.json(
+        { error: "Lost connection while waiting for Gamma to finish." },
+        { status: 502 },
+      );
+    }
+
+    if (pollData.status === "completed") {
+      const response: GammaGenerateResponse = {
+        gammaUrl:     pollData.gammaUrl     ?? `https://gamma.app`,
+        exportUrl:    pollData.exportUrl,
+        title:        pollData.title        ?? prompt.slice(0, 80),
+        generationId,
+      };
+      return NextResponse.json(response);
+    }
+
+    if (pollData.status === "failed") {
+      return NextResponse.json(
+        { error: `Gamma generation failed: ${pollData.error ?? "unknown reason"}` },
+        { status: 500 },
+      );
+    }
+
+    // still pending — keep polling
+  }
+
+  return NextResponse.json(
+    { error: "Timed out waiting for Gamma to finish (3 min). Check gamma.app for your deck." },
+    { status: 504 },
+  );
 }

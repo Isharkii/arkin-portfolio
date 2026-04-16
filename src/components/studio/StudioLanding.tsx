@@ -366,15 +366,22 @@ function IconFile() {
   );
 }
 
+interface GammaResult {
+  gammaUrl: string;
+  exportUrl?: string;
+  title: string;
+  generationId: string;
+}
+
 interface GenerateChatboxProps {
-  onSlidesGenerated: (slides: GammaSlide[], title: string, url: string) => void;
+  onGenerated: (result: GammaResult) => void;
   onGeneratingChange: (loading: boolean) => void;
 }
 
-function GenerateChatbox({ onSlidesGenerated, onGeneratingChange }: GenerateChatboxProps) {
+function GenerateChatbox({ onGenerated, onGeneratingChange }: GenerateChatboxProps) {
   const [prompt, setPrompt]     = useState("");
   const [files, setFiles]       = useState<File[]>([]);
-  const [theme, setTheme]       = useState("default");
+  const [theme, setTheme]       = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError]       = useState<string | null>(null);
   const fileInputRef            = useRef<HTMLInputElement>(null);
@@ -389,7 +396,7 @@ function GenerateChatbox({ onSlidesGenerated, onGeneratingChange }: GenerateChat
       const res = await fetch("/api/gamma/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim(), theme }),
+        body: JSON.stringify({ prompt: prompt.trim(), theme: theme || undefined }),
       });
 
       const data = await res.json();
@@ -399,7 +406,7 @@ function GenerateChatbox({ onSlidesGenerated, onGeneratingChange }: GenerateChat
         return;
       }
 
-      onSlidesGenerated(data.slides ?? [], data.title ?? prompt, data.presentationUrl ?? "");
+      onGenerated(data as GammaResult);
     } catch {
       setError("Network error. Please check your connection and try again.");
     } finally {
@@ -517,93 +524,6 @@ function GenerateChatbox({ onSlidesGenerated, onGeneratingChange }: GenerateChat
 
 // ─── Slide card ────────────────────────────────────────────────────────────────
 
-const slideCardVariants: Variants = {
-  hidden:  { opacity: 0, y: 24, scale: 0.97 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { delay: i * 0.06, duration: 0.38, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  }),
-};
-
-function SlideCard({ slide, index }: { slide: GammaSlide; index: number }) {
-  const [expanded, setExpanded] = useState(false);
-
-  const bodyLines = slide.body.split("\n\n").filter(Boolean);
-  const previewLines = bodyLines.slice(0, 3);
-  const hasMore = bodyLines.length > 3;
-
-  return (
-    <motion.div
-      custom={index}
-      variants={slideCardVariants}
-      initial="hidden"
-      animate="visible"
-      style={{ willChange: "transform" }}
-      className="group relative overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-xl shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-shadow duration-300 hover:shadow-[0_10px_36px_rgba(0,0,0,0.13)]"
-    >
-      {/* Slide number badge */}
-      <div className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--background)]/60 backdrop-blur-sm">
-        <span className="font-ui text-[9px] font-semibold tracking-wide text-[var(--muted)]">
-          {index + 1}
-        </span>
-      </div>
-
-      {/* Cover image */}
-      {slide.imageUrl && (
-        <div className="h-32 w-full overflow-hidden sm:h-36">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={slide.imageUrl}
-            alt={slide.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="p-4 sm:p-5">
-        <h3 className="font-display text-[15px] font-semibold leading-snug tracking-[-0.01em] text-[var(--foreground)] sm:text-[16px] mb-2.5">
-          {slide.title}
-        </h3>
-
-        {bodyLines.length > 0 && (
-          <div className="space-y-2">
-            {(expanded ? bodyLines : previewLines).map((line, i) => (
-              <p
-                key={i}
-                className="font-ui text-[12px] leading-relaxed text-[var(--muted)] sm:text-[13px]"
-              >
-                {line}
-              </p>
-            ))}
-            {hasMore && (
-              <button
-                type="button"
-                onClick={() => setExpanded((v) => !v)}
-                className="font-ui mt-1 text-[11px] text-blue-500 hover:text-blue-600 transition-colors"
-              >
-                {expanded ? "Show less" : `+${bodyLines.length - 3} more lines`}
-              </button>
-            )}
-          </div>
-        )}
-
-        {slide.speakerNotes && (
-          <details className="mt-3">
-            <summary className="font-ui cursor-pointer text-[10px] uppercase tracking-[0.18em] text-[var(--muted)]/50 hover:text-[var(--muted)] transition-colors">
-              Speaker notes
-            </summary>
-            <p className="font-ui mt-2 rounded-lg border border-[var(--line)] bg-[var(--surface-soft)] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--muted)]/80 italic sm:text-[12px]">
-              {slide.speakerNotes}
-            </p>
-          </details>
-        )}
-      </div>
-    </motion.div>
-  );
-}
 
 // ─── Data ───────────────────────────────────────────────────────────────────────
 
@@ -813,9 +733,7 @@ export default function StudioLanding() {
   // presentationMode drives the expensive layout change (outer container, folder height)
   // and is deferred via useTransition so it doesn't block the slide animation start
   const [presentationMode, setPresentationMode] = useState(false);
-  const [generatedSlides,  setGeneratedSlides]  = useState<GammaSlide[]>([]);
-  const [presentationTitle, setPresentationTitle] = useState<string>("");
-  const [presentationUrl,   setPresentationUrl]   = useState<string>("");
+  const [gammaResult,      setGammaResult]      = useState<GammaResult | null>(null);
   const [isGenerating,     setIsGenerating]     = useState(false);
   const [, startLayoutTransition] = useTransition();
   const screenSize = useScreenSize();
@@ -843,9 +761,7 @@ export default function StudioLanding() {
       // Collapse layout immediately so the folder shrinks as the slide exits
       setPresentationMode(false);
       setActivePresentationTab(null);
-      setGeneratedSlides([]);
-      setPresentationTitle("");
-      setPresentationUrl("");
+      setGammaResult(null);
     } else if (selectedService) {
       closeDetail();
     } else {
@@ -1206,11 +1122,7 @@ export default function StudioLanding() {
                       >
                         {activePresentationTab === "generate" && (
                           <GenerateChatbox
-                            onSlidesGenerated={(slides, title, url) => {
-                              setGeneratedSlides(slides);
-                              setPresentationTitle(title);
-                              setPresentationUrl(url);
-                            }}
+                            onGenerated={setGammaResult}
                             onGeneratingChange={setIsGenerating}
                           />
                         )}
@@ -1255,47 +1167,47 @@ export default function StudioLanding() {
                   </motion.div>
                 )}
 
-                {/* Slides */}
-                {!isGenerating && generatedSlides.length > 0 && (
+                {/* Result card */}
+                {!isGenerating && gammaResult && (
                   <motion.div
-                    key="slides"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    key="result"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
+                    className="rounded-2xl border border-[var(--line)] bg-[var(--background)]/80 backdrop-blur-xl p-6 sm:p-8"
                   >
-                    {/* Header */}
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                      <div>
-                        <p className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]/50 mb-0.5">
-                          {generatedSlides.length} slides
-                        </p>
-                        {presentationTitle && (
-                          <h2 className="font-display text-[18px] font-semibold leading-snug text-[var(--foreground)] sm:text-[20px]">
-                            {presentationTitle}
-                          </h2>
-                        )}
-                      </div>
-                      {presentationUrl && (
+                    <p className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]/50 mb-1.5">
+                      Presentation ready
+                    </p>
+                    <h2 className="font-display text-[18px] font-semibold leading-snug text-[var(--foreground)] sm:text-[20px] mb-5">
+                      {gammaResult.title}
+                    </h2>
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href={gammaResult.gammaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-ui inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-blue-600"
+                      >
+                        Open in Gamma
+                        <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 10L10 2M10 2H5M10 2v5" />
+                        </svg>
+                      </a>
+                      {gammaResult.exportUrl && (
                         <a
-                          href={presentationUrl}
+                          href={gammaResult.exportUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-ui shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[var(--line)] bg-[var(--background)]/60 px-4 py-2 text-[11px] text-[var(--foreground)] backdrop-blur-sm transition-colors hover:bg-[var(--background)] sm:text-[12px]"
+                          className="font-ui inline-flex items-center gap-2 rounded-xl border border-[var(--line)] bg-[var(--background)]/60 px-5 py-2.5 text-[13px] text-[var(--foreground)] backdrop-blur-sm transition-colors hover:bg-[var(--background)]"
                         >
-                          Open in Gamma
-                          <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M2 10L10 2M10 2H5M10 2v5" />
+                          Download
+                          <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 2v6M3 6l3 3 3-3M2 10h8" />
                           </svg>
                         </a>
                       )}
-                    </div>
-
-                    {/* Grid */}
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {generatedSlides.map((slide, i) => (
-                        <SlideCard key={slide.id} slide={slide} index={i} />
-                      ))}
                     </div>
                   </motion.div>
                 )}
