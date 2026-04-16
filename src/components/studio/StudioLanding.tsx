@@ -7,7 +7,6 @@ import { useState } from "react";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { GooeyFilter } from "@/components/ui/gooey-filter";
 import { useScreenSize } from "@/hooks/use-screen-size";
-import { AIPresentationModal } from "./AIPresentationModal";
 
 // ─── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -246,7 +245,6 @@ export default function StudioLanding() {
   const [selectedService, setSelectedService] = useState<ServiceId | null>(null);
   const [activeDetailTab, setActiveDetailTab] = useState<ServiceId>("website");
   const [slideDir,       setSlideDir]       = useState<1 | -1>(1);
-  const [isAIPresentationOpen, setIsAIPresentationOpen] = useState(false);
   const screenSize = useScreenSize();
 
   const activeTabId = TABS[activeIndex].id;
@@ -254,10 +252,6 @@ export default function StudioLanding() {
   const hoverContent = hoveredId ? CONTENT[activeTabId][hoveredId] : null;
 
   function openDetail(service: ServiceId) {
-    if (activeTabId === "ai" && service === "presentation") {
-      setIsAIPresentationOpen(true);
-      return;
-    }
     setSlideDir(1);
     setActiveDetailTab(service);
     setHoveredId(null);
@@ -276,7 +270,6 @@ export default function StudioLanding() {
   }
 
   return (
-    <>
     <AuroraBackground
       showRadialGradient
       className="h-[100dvh] w-screen overflow-hidden !bg-[var(--background)] text-[var(--foreground)]"
@@ -540,10 +533,5 @@ export default function StudioLanding() {
         </div>
       </div>
     </AuroraBackground>
-    <AIPresentationModal
-      isOpen={isAIPresentationOpen}
-      onClose={() => setIsAIPresentationOpen(false)}
-    />
-    </>
   );
 }
