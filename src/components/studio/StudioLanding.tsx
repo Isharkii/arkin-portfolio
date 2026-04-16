@@ -326,8 +326,8 @@ export default function StudioLanding() {
                   exit="exit"
                   className="absolute inset-0"
                 >
-                  {/* Gooey filter — background colour blocks only */}
-                  <div style={{ filter: "url(#studio-goo)" }} className="flex h-full flex-col">
+                  {/* Gooey filter — background colour blocks only, never receives pointer events */}
+                  <div style={{ filter: "url(#studio-goo)", pointerEvents: "none" }} className="flex h-full flex-col">
                     <div className="flex w-full shrink-0">
                       {TABS.map((tab, index) => (
                         <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
@@ -345,7 +345,7 @@ export default function StudioLanding() {
                   </div>
 
                   {/* Logo + text content overlay (unfiltered) */}
-                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 flex flex-col items-center justify-between px-8 sm:px-12 md:px-16 py-8 sm:py-10 md:py-12">
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20 flex flex-col items-center justify-between px-8 sm:px-12 md:px-16 py-8 sm:py-10 md:py-12">
 
                     {/* Logo row */}
                     <div className="flex w-full items-center justify-center gap-5 sm:gap-8 md:gap-12">
@@ -449,8 +449,8 @@ export default function StudioLanding() {
                   exit="exit"
                   className="absolute inset-0"
                 >
-                  {/* Gooey filter layer — background colour blocks only, no text */}
-                  <div style={{ filter: "url(#studio-goo)" }} className="flex h-full flex-col">
+                  {/* Gooey filter layer — background colour blocks only, never receives pointer events */}
+                  <div style={{ filter: "url(#studio-goo)", pointerEvents: "none" }} className="flex h-full flex-col">
                     <div className="flex w-full shrink-0">
                       {SERVICE_TABS.map((tab) => (
                         <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
@@ -487,8 +487,8 @@ export default function StudioLanding() {
                     ))}
                   </div>
 
-                  {/* Content overlay — unfiltered */}
-                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 flex flex-col">
+                  {/* Content overlay — unfiltered, always above gooey layer */}
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20 flex flex-col">
                     {/* Custom / AI mini toggle — top-right of content area */}
                     <div className="flex justify-end px-5 sm:px-7 md:px-9 pt-4 sm:pt-5">
                       <div className="flex items-center gap-[3px] rounded-full border border-[var(--line)] bg-[var(--background)]/40 p-[3px] backdrop-blur-sm">
