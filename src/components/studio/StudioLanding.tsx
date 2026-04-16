@@ -150,7 +150,7 @@ function AIPresentationCards() {
             {opt.icon}
           </div>
           <div className="space-y-1">
-            <p className="font-ui text-[12px] font-semibold leading-snug text-[var(--foreground)] sm:text-[13px]">
+            <p className="font-display text-[13px] font-semibold leading-snug text-[var(--foreground)] sm:text-[14px]">
               {opt.title}
             </p>
             <p className="font-ui text-[11px] leading-relaxed text-[var(--muted)] sm:text-[12px]">
