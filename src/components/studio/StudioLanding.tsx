@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { GooeyFilter } from "@/components/ui/gooey-filter";
@@ -168,6 +168,126 @@ function AIPresentationCards({ onSelect }: { onSelect: (id: string) => void }) {
         </motion.button>
       ))}
     </motion.div>
+  );
+}
+
+// ─── Generate chatbox ──────────────────────────────────────────────────────────
+
+const THEMES = [
+  { value: "default",    label: "Default"    },
+  { value: "modern",     label: "Modern"     },
+  { value: "minimalist", label: "Minimalist" },
+  { value: "corporate",  label: "Corporate"  },
+  { value: "creative",   label: "Creative"   },
+  { value: "dark",       label: "Dark"       },
+  { value: "light",      label: "Light"      },
+];
+
+function IconFile() {
+  return (
+    <svg viewBox="0 0 16 16" className="h-full w-full" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6L9 2z" />
+      <polyline points="9 2 9 6 13 6" />
+    </svg>
+  );
+}
+
+function GenerateChatbox() {
+  const [prompt, setPrompt]     = useState("");
+  const [files, setFiles]       = useState<File[]>([]);
+  const [theme, setTheme]       = useState("default");
+  const fileInputRef            = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="flex flex-col gap-4 p-5 sm:p-6 md:p-8">
+
+      {/* Textarea */}
+      <textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Describe your presentation…"
+        rows={5}
+        className="font-ui w-full resize-none rounded-xl border border-[var(--line)] bg-[var(--background)]/70 px-4 py-3.5 text-[13px] leading-relaxed text-[var(--foreground)] placeholder:text-[var(--muted)]/45 backdrop-blur-sm transition-shadow focus:outline-none focus:ring-2 focus:ring-blue-400/25 min-h-[120px] sm:text-[14px]"
+      />
+
+      {/* Attached file chips */}
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {files.map((f, i) => (
+            <span
+              key={i}
+              className="font-ui inline-flex items-center gap-1.5 rounded-lg border border-[var(--line)] bg-[var(--background)]/60 px-2.5 py-1 text-[11px] text-[var(--muted)]"
+            >
+              <span className="h-3 w-3 shrink-0"><IconFile /></span>
+              <span className="max-w-[120px] truncate">{f.name}</span>
+              <button
+                type="button"
+                onClick={() => setFiles((prev) => prev.filter((_, j) => j !== i))}
+                className="ml-0.5 text-[var(--muted)]/60 hover:text-[var(--foreground)]"
+                aria-label="Remove file"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Toolbar */}
+      <div className="flex items-center gap-2.5">
+
+        {/* + attach files */}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          aria-label="Attach files"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--background)]/60 text-[var(--muted)] backdrop-blur-sm transition-colors hover:border-blue-400/40 hover:text-[var(--foreground)]"
+        >
+          <svg viewBox="0 0 16 16" className="h-[15px] w-[15px]" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+            <line x1="8" y1="2" x2="8" y2="14" />
+            <line x1="2" y1="8" x2="14" y2="8" />
+          </svg>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          className="sr-only"
+          onChange={(e) => {
+            setFiles((prev) => [...prev, ...Array.from(e.target.files ?? [])]);
+            e.target.value = "";
+          }}
+        />
+
+        {/* Theme selector */}
+        <div className="relative flex-1">
+          <select
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="font-ui w-full appearance-none rounded-xl border border-[var(--line)] bg-[var(--background)]/60 px-3 py-2 text-[12px] text-[var(--foreground)] backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400/25 sm:text-[13px]"
+          >
+            {THEMES.map((t) => (
+              <option key={t.value} value={t.value}>
+                Theme: {t.label}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)]/60">
+            <svg viewBox="0 0 10 6" className="h-2.5 w-2.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+              <path d="M1 1l4 4 4-4" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Generate */}
+        <button
+          type="button"
+          className="font-ui shrink-0 rounded-xl bg-blue-500 px-5 py-2 text-[12px] font-medium text-white transition-colors duration-200 hover:bg-emerald-500 sm:px-6 sm:text-[13px]"
+        >
+          Generate
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -404,7 +524,11 @@ export default function StudioLanding() {
   return (
     <AuroraBackground
       showRadialGradient
-      className="h-[100dvh] w-screen overflow-hidden !bg-[var(--background)] text-[var(--foreground)]"
+      className={`w-screen !bg-[var(--background)] text-[var(--foreground)] ${
+        activePresentationTab !== null
+          ? "!h-auto min-h-[100dvh] overflow-y-auto overflow-x-hidden"
+          : "h-[100dvh] overflow-hidden"
+      }`}
     >
       <div aria-hidden className="bg-paper-grid pointer-events-none absolute inset-0 opacity-40" />
       <div aria-hidden className="pointer-events-none absolute left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
@@ -413,7 +537,9 @@ export default function StudioLanding() {
       <GooeyFilter id="studio-goo" strength={screenSize.lessThan("md") ? 8 : 14} />
 
       {/* Shell */}
-      <div className="relative flex h-full flex-col pt-[100px] sm:pt-[112px] md:pt-[128px] px-5 sm:px-6 md:px-[60px]">
+      <div className={`relative flex flex-col pt-[100px] sm:pt-[112px] md:pt-[128px] px-5 sm:px-6 md:px-[60px] ${
+        activePresentationTab !== null ? "pb-20" : "h-full"
+      }`}>
 
         {/* Close / Back button */}
         <motion.div
@@ -436,14 +562,22 @@ export default function StudioLanding() {
           </button>
         </motion.div>
 
-        {/* Folder container — fixed height so slide clips cleanly */}
-        <div className="flex flex-1 items-center justify-center pb-[10%]">
+        {/* Folder container */}
+        <div className={activePresentationTab !== null
+          ? "mt-6 sm:mt-8 flex flex-col items-center gap-8 sm:gap-10"
+          : "flex flex-1 items-center justify-center pb-[10%]"
+        }>
           <motion.div
+            layout
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0  }}
-            transition={{ duration: 0.44, delay: 0.1, ease: "easeOut" }}
+            transition={{ layout: { type: "spring", stiffness: 260, damping: 28 }, duration: 0.44, delay: 0.1, ease: "easeOut" }}
             /* overflow-hidden clips the horizontal slide */
-            className="relative w-[92vw] max-w-[1160px] overflow-hidden h-[clamp(17rem,52vh,34rem)]"
+            className={`relative w-[92vw] max-w-[1160px] overflow-hidden ${
+              activePresentationTab !== null
+                ? "h-[clamp(22rem,62vh,42rem)]"
+                : "h-[clamp(17rem,52vh,34rem)]"
+            }`}
           >
             <AnimatePresence custom={slideDir} mode="wait" initial={false}>
 
@@ -712,13 +846,32 @@ export default function StudioLanding() {
                     ))}
                   </div>
 
-                  {/* Content area — empty for now */}
-                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20" />
+                  {/* Content area */}
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20 overflow-y-auto">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={activePresentationTab ?? "empty"}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{    opacity: 0, y: -8 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                      >
+                        {activePresentationTab === "generate" && <GenerateChatbox />}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
                 </motion.div>
               )}
 
             </AnimatePresence>
           </motion.div>
+
+          {/* Generated slides — rendered below the folder, dynamically grows */}
+          {activePresentationTab !== null && (
+            <div className="w-full max-w-[1160px]">
+              {/* Slide previews will be injected here by the API integration */}
+            </div>
+          )}
         </div>
       </div>
     </AuroraBackground>
