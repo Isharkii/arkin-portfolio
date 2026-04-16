@@ -345,10 +345,10 @@ export default function StudioLanding() {
                   </div>
 
                   {/* Logo + text content overlay (unfiltered) */}
-                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20 flex flex-col items-center justify-between px-8 sm:px-12 md:px-16 py-8 sm:py-10 md:py-12">
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20 flex flex-col items-center justify-between px-6 sm:px-10 md:px-14 py-5 sm:py-7 md:py-9">
 
                     {/* Logo row */}
-                    <div className="flex w-full items-center justify-center gap-5 sm:gap-8 md:gap-12">
+                    <div className="flex w-full items-center justify-center gap-3 sm:gap-5 md:gap-8">
                       {activeLogos.map((service) => {
                         const isHovered = hoveredId === service.id;
                         const isBlurred = hoveredId !== null && !isHovered;
@@ -370,9 +370,9 @@ export default function StudioLanding() {
                             onMouseEnter={() => setHoveredId(service.id as ServiceId)}
                             onMouseLeave={() => setHoveredId(null)}
                             onClick={() => openDetail(service.id as ServiceId)}
-                            className="flex cursor-pointer items-center justify-center rounded-2xl border border-black/[0.12] dark:border-white/20 bg-[var(--background)]/50 backdrop-blur-sm h-[clamp(3.5rem,6vw,5.75rem)] w-[clamp(3.5rem,6vw,5.75rem)]"
+                            className="flex cursor-pointer items-center justify-center rounded-2xl border border-black/[0.12] dark:border-white/20 bg-[var(--background)]/50 backdrop-blur-sm h-[clamp(2.8rem,4.2vw,4.5rem)] w-[clamp(2.8rem,4.2vw,4.5rem)]"
                           >
-                            <div className="h-[clamp(1.4rem,2.2vw,2.4rem)] w-[clamp(1.4rem,2.2vw,2.4rem)] text-[var(--foreground)]/75">
+                            <div className="h-[clamp(1.1rem,1.7vw,1.85rem)] w-[clamp(1.1rem,1.7vw,1.85rem)] text-[var(--foreground)]/75">
                               {service.icon}
                             </div>
                           </motion.div>
