@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { GooeyFilter } from "@/components/ui/gooey-filter";
@@ -216,80 +217,50 @@ interface ThemePickerProps {
 }
 
 function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
-  const [open, setOpen] = useState(false);
-  const selected = PALETTE_THEMES.find((t) => t.id === value) ?? null;
+  const [open, setOpen]       = useState(false);
+  // anchor: distance from viewport bottom + left edge
+  const [pos, setPos]         = useState({ bottom: 0, left: 0, maxH: 320 });
+  const [mounted, setMounted] = useState(false);
+  const triggerRef            = useRef<HTMLButtonElement>(null);
+  const selected              = PALETTE_THEMES.find((t) => t.id === value) ?? null;
 
-  return (
-    <div className="relative">
-      {/* Invisible outside-click overlay */}
+  useEffect(() => { setMounted(true); }, []);
+
+  function handleToggle() {
+    if (!open && triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect();
+      // position bottom of dropdown 8px above button top
+      const bottomGap = window.innerHeight - r.top + 8;
+      // clamp left so the 320px panel never overflows right edge
+      const left = Math.min(r.left, window.innerWidth - 320 - 16);
+      // max height: space above button minus 16px breathing room
+      const maxH = Math.min(320, r.top - 24);
+      setPos({ bottom: bottomGap, left, maxH });
+    }
+    setOpen((v) => !v);
+  }
+
+  const dropdown = (
+    <AnimatePresence>
       {open && (
-        <div
-          className="fixed inset-0 z-40"
-          aria-hidden
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      {/* Trigger */}
-      <motion.button
-        type="button"
-        whileTap={{ scale: 0.95 }}
-        disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Pick a theme"
-        className={`relative z-50 flex h-8 items-center gap-1.5 rounded-lg border px-2 transition-colors duration-150 disabled:opacity-40 ${
-          open
-            ? "border-violet-300 bg-violet-50/60 text-violet-600 dark:border-violet-600/50 dark:bg-violet-950/30 dark:text-violet-400"
-            : "border-black/[0.08] bg-[var(--background)]/60 text-gray-400 hover:border-violet-300 hover:text-violet-600 dark:border-white/[0.08] dark:text-white/30 dark:hover:border-violet-500/60 dark:hover:text-violet-400"
-        }`}
-      >
-        {selected ? (
-          <>
-            {/* 3 color swatches */}
-            <span className="flex items-center gap-[2px]">
-              {selected.colors.map((hex, i) => (
-                <span
-                  key={i}
-                  className="inline-block h-3 w-3 rounded-[2px]"
-                  style={{ background: hex }}
-                />
-              ))}
-            </span>
-            {/* Clear × */}
-            <span
-              role="button"
-              aria-label="Clear theme"
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); onChange(""); } }}
-              onClick={(e) => { e.stopPropagation(); onChange(""); }}
-              className="ml-0.5 text-[11px] leading-none text-gray-400 hover:text-gray-600 dark:text-white/30 dark:hover:text-white/60"
-            >
-              ×
-            </span>
-          </>
-        ) : (
-          /* Palette SVG */
-          <svg viewBox="0 0 18 18" className="h-[15px] w-[15px]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9a2.5 2.5 0 0 1-2.5-2.5A2.5 2.5 0 0 0 11.5 4" />
-            <circle cx="5.5" cy="7" r="1" fill="currentColor" stroke="none" />
-            <circle cx="5.5" cy="11" r="1" fill="currentColor" stroke="none" />
-            <circle cx="9"   cy="13" r="1" fill="currentColor" stroke="none" />
-          </svg>
-        )}
-      </motion.button>
-
-      {/* Dropdown */}
-      <AnimatePresence>
-        {open && (
+        <>
+          {/* outside-click trap */}
+          <div className="fixed inset-0 z-[9998]" aria-hidden onClick={() => setOpen(false)} />
           <motion.div
             key="theme-dropdown"
             variants={dropdownVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute bottom-full left-0 z-50 mb-2 w-80 overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-xl dark:border-white/[0.08] dark:bg-[#111] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+            style={{
+              position: "fixed",
+              bottom: pos.bottom,
+              left:   pos.left,
+              zIndex: 9999,
+            }}
+            className="w-80 overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-xl dark:border-white/[0.08] dark:bg-[#111] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           >
-            <div className="max-h-96 overflow-y-auto p-1">
+            <div className="overflow-y-auto p-1" style={{ maxHeight: pos.maxH }}>
               <div className="grid grid-cols-2 gap-1.5 p-1">
                 {PALETTE_THEMES.map((t) => {
                   const isSelected = value === t.id;
@@ -304,7 +275,6 @@ function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
                           : "border-transparent hover:border-black/[0.07] hover:bg-gray-50 dark:hover:border-white/[0.06] dark:hover:bg-white/[0.04]"
                       }`}
                     >
-                      {/* Color bar — 3 equal strips */}
                       <div className="mb-2 flex h-8 w-full overflow-hidden rounded-md">
                         {t.colors.map((hex, i) => (
                           <span key={i} className="flex-1" style={{ background: hex }} />
@@ -325,8 +295,55 @@ function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
               </div>
             </div>
           </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <div className="relative">
+      <motion.button
+        ref={triggerRef}
+        type="button"
+        whileTap={{ scale: 0.95 }}
+        disabled={disabled}
+        onClick={handleToggle}
+        aria-label="Pick a theme"
+        className={`flex h-8 items-center gap-1.5 rounded-lg border px-2 transition-colors duration-150 disabled:opacity-40 ${
+          open
+            ? "border-violet-300 bg-violet-50/60 text-violet-600 dark:border-violet-600/50 dark:bg-violet-950/30 dark:text-violet-400"
+            : "border-black/[0.08] bg-[var(--background)]/60 text-gray-400 hover:border-violet-300 hover:text-violet-600 dark:border-white/[0.08] dark:text-white/30 dark:hover:border-violet-500/60 dark:hover:text-violet-400"
+        }`}
+      >
+        {selected ? (
+          <>
+            <span className="flex items-center gap-[2px]">
+              {selected.colors.map((hex, i) => (
+                <span key={i} className="inline-block h-3 w-3 rounded-[2px]" style={{ background: hex }} />
+              ))}
+            </span>
+            <span
+              role="button"
+              aria-label="Clear theme"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); onChange(""); } }}
+              onClick={(e) => { e.stopPropagation(); onChange(""); }}
+              className="ml-0.5 text-[11px] leading-none text-gray-400 hover:text-gray-600 dark:text-white/30 dark:hover:text-white/60"
+            >
+              ×
+            </span>
+          </>
+        ) : (
+          <svg viewBox="0 0 18 18" className="h-[15px] w-[15px]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 1.5A7.5 7.5 0 1 0 16.5 9a2.5 2.5 0 0 1-2.5-2.5A2.5 2.5 0 0 0 11.5 4" />
+            <circle cx="5.5" cy="7" r="1" fill="currentColor" stroke="none" />
+            <circle cx="5.5" cy="11" r="1" fill="currentColor" stroke="none" />
+            <circle cx="9"   cy="13" r="1" fill="currentColor" stroke="none" />
+          </svg>
         )}
-      </AnimatePresence>
+      </motion.button>
+
+      {mounted && createPortal(dropdown, document.body)}
     </div>
   );
 }
@@ -793,10 +810,14 @@ export default function StudioLanding() {
   const [activeDetailTab, setActiveDetailTab] = useState<ServiceId>("website");
   const [slideDir,       setSlideDir]       = useState<1 | -1>(1);
   const [activePresentationTab, setActivePresentationTab] = useState<string | null>(null);
+  // presentationMode drives the expensive layout change (outer container, folder height)
+  // and is deferred via useTransition so it doesn't block the slide animation start
+  const [presentationMode, setPresentationMode] = useState(false);
   const [generatedSlides,  setGeneratedSlides]  = useState<GammaSlide[]>([]);
   const [presentationTitle, setPresentationTitle] = useState<string>("");
   const [presentationUrl,   setPresentationUrl]   = useState<string>("");
   const [isGenerating,     setIsGenerating]     = useState(false);
+  const [, startLayoutTransition] = useTransition();
   const screenSize = useScreenSize();
 
   const activeTabId = TABS[activeIndex].id;
@@ -819,6 +840,8 @@ export default function StudioLanding() {
   function handleClose() {
     if (activePresentationTab) {
       setSlideDir(-1);
+      // Collapse layout immediately so the folder shrinks as the slide exits
+      setPresentationMode(false);
       setActivePresentationTab(null);
       setGeneratedSlides([]);
       setPresentationTitle("");
@@ -830,24 +853,40 @@ export default function StudioLanding() {
     }
   }
 
+  // Open a presentation sub-tab: start the slide animation immediately,
+  // defer the heavy layout expansion (outer container + folder height) so it
+  // doesn't block the first animation frame.
+  function openPresentationTab(id: string) {
+    setSlideDir(1);
+    setActivePresentationTab(id);
+    startLayoutTransition(() => {
+      setPresentationMode(true);
+    });
+  }
+
   return (
     <AuroraBackground
       showRadialGradient
       className={`w-screen !bg-[var(--background)] text-[var(--foreground)] ${
-        activePresentationTab !== null
+        presentationMode
           ? "!h-auto min-h-[100dvh] overflow-y-auto overflow-x-hidden"
           : "h-[100dvh] overflow-hidden"
       }`}
     >
       <div aria-hidden className="bg-paper-grid pointer-events-none absolute inset-0 opacity-40" />
-      <div aria-hidden className="pointer-events-none absolute left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
+      {/* Blobs are cheap static blurs — only render in top-level views, not during the scrollable presentation view */}
+      {activePresentationTab === null && (
+        <>
+          <div aria-hidden className="pointer-events-none absolute left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
+        </>
+      )}
 
       <GooeyFilter id="studio-goo" strength={screenSize.lessThan("md") ? 8 : 14} />
 
       {/* Shell */}
       <div className={`relative flex flex-col pt-[100px] sm:pt-[112px] md:pt-[128px] px-5 sm:px-6 md:px-[60px] ${
-        activePresentationTab !== null ? "pb-20" : "h-full"
+        presentationMode ? "pb-20" : "h-full"
       }`}>
 
         {/* Close / Back button */}
@@ -872,18 +911,18 @@ export default function StudioLanding() {
         </motion.div>
 
         {/* Folder container */}
-        <div className={activePresentationTab !== null
+        <div className={presentationMode
           ? "mt-6 sm:mt-8 flex flex-col items-center gap-8 sm:gap-10"
           : "flex flex-1 items-center justify-center pb-[10%]"
         }>
           <motion.div
-            layout
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0  }}
-            transition={{ layout: { type: "spring", stiffness: 260, damping: 28 }, duration: 0.44, delay: 0.1, ease: "easeOut" }}
-            /* overflow-hidden clips the horizontal slide */
-            className={`relative w-[92vw] max-w-[1160px] overflow-hidden ${
-              activePresentationTab !== null
+            transition={{ duration: 0.44, delay: 0.1, ease: [0.22, 1, 0.36, 1] as [number,number,number,number] }}
+            /* overflow-hidden clips the horizontal slide; height via CSS transition — no layout measurement */
+            style={{ willChange: "transform" }}
+            className={`relative w-[92vw] max-w-[1160px] overflow-hidden transition-[height] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              presentationMode
                 ? "h-[clamp(22rem,62vh,42rem)]"
                 : "h-[clamp(17rem,52vh,34rem)]"
             }`}
@@ -1096,7 +1135,7 @@ export default function StudioLanding() {
                           className="w-full"
                         >
                           {activeTabId === "ai" && activeDetailTab === "presentation"
-                            ? <AIPresentationCards onSelect={(id) => { setSlideDir(1); setActivePresentationTab(id); }} />
+                            ? <AIPresentationCards onSelect={openPresentationTab} />
                             : PREVIEWS[activeDetailTab]
                           }
                         </motion.div>
@@ -1184,8 +1223,8 @@ export default function StudioLanding() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Generated slides — rendered below the folder */}
-          {activePresentationTab !== null && (
+          {/* Generated slides — rendered below the folder, only once layout has expanded */}
+          {presentationMode && (
             <div className="w-full max-w-[1160px]">
               <AnimatePresence mode="wait">
 
