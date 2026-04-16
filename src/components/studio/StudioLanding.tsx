@@ -115,6 +115,13 @@ const PRESENTATION_OPTIONS = [
   },
 ] as const;
 
+const PRESENTATION_SUB_TABS = [
+  { id: "generate", label: "Generate"            },
+  { id: "text",     label: "Paste in text"        },
+  { id: "template", label: "Create from template" },
+  { id: "import",   label: "Import file or URL"   },
+] as const;
+
 const presentationCardVariants = {
   hidden:  { opacity: 0, y: 16, scale: 0.97 },
   visible: { opacity: 1, y: 0,  scale: 1,
@@ -125,7 +132,7 @@ const presentationListVariants = {
   visible: { transition: { staggerChildren: 0.07, delayChildren: 0.06 } },
 };
 
-function AIPresentationCards() {
+function AIPresentationCards({ onSelect }: { onSelect: (id: string) => void }) {
   return (
     <motion.div
       variants={presentationListVariants}
@@ -144,6 +151,7 @@ function AIPresentationCards() {
           }}
           whileTap={{ scale: 0.97 }}
           type="button"
+          onClick={() => onSelect(opt.id)}
           className="flex flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--background)]/80 p-4 text-left shadow-[0_2px_8px_rgba(0,0,0,0.06)] backdrop-blur-sm transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,0,0,0.12)] dark:bg-white/[0.05]"
         >
           <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl p-2 ${opt.iconBg}`}>
@@ -367,6 +375,7 @@ export default function StudioLanding() {
   const [selectedService, setSelectedService] = useState<ServiceId | null>(null);
   const [activeDetailTab, setActiveDetailTab] = useState<ServiceId>("website");
   const [slideDir,       setSlideDir]       = useState<1 | -1>(1);
+  const [activePresentationTab, setActivePresentationTab] = useState<string | null>(null);
   const screenSize = useScreenSize();
 
   const activeTabId = TABS[activeIndex].id;
@@ -385,9 +394,10 @@ export default function StudioLanding() {
     setSelectedService(null);
   }
 
-  // X button: close detail OR go home
+  // X button: close sub-view → detail → main → home
   function handleClose() {
-    if (selectedService) closeDetail();
+    if (activePresentationTab) { setSlideDir(-1); setActivePresentationTab(null); }
+    else if (selectedService) closeDetail();
     else router.push("/");
   }
 
@@ -561,7 +571,7 @@ export default function StudioLanding() {
               )}
 
               {/* ── DETAIL VIEW ── */}
-              {selectedService !== null && (
+              {selectedService !== null && activePresentationTab === null && (
                 <motion.div
                   key="detail"
                   custom={slideDir}
@@ -643,13 +653,67 @@ export default function StudioLanding() {
                           className="w-full"
                         >
                           {activeTabId === "ai" && activeDetailTab === "presentation"
-                            ? <AIPresentationCards />
+                            ? <AIPresentationCards onSelect={(id) => { setSlideDir(1); setActivePresentationTab(id); }} />
                             : PREVIEWS[activeDetailTab]
                           }
                         </motion.div>
                       </AnimatePresence>
                     </div>
                   </div>
+                </motion.div>
+              )}
+
+              {/* ── PRESENTATION SUB VIEW ── */}
+              {activePresentationTab !== null && (
+                <motion.div
+                  key="presentation-sub"
+                  custom={slideDir}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="absolute inset-0"
+                >
+                  {/* Gooey filter layer */}
+                  <div style={{ filter: "url(#studio-goo)", pointerEvents: "none" }} className="flex h-full flex-col">
+                    <div className="flex w-full shrink-0">
+                      {PRESENTATION_SUB_TABS.map((tab) => (
+                        <div key={tab.id} className="relative h-12 flex-1 sm:h-14 md:h-16">
+                          {activePresentationTab === tab.id && (
+                            <motion.div
+                              layoutId="presentation-sub-tab-bg"
+                              className="absolute inset-0 bg-[var(--folder-bg)]"
+                              transition={{ type: "spring", bounce: 0, duration: 0.36 }}
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex-1 w-full bg-[var(--folder-bg)]" />
+                  </div>
+
+                  {/* Tab labels overlay */}
+                  <div className="absolute left-0 right-0 top-0 z-10 flex h-12 sm:h-14 md:h-16">
+                    {PRESENTATION_SUB_TABS.map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setActivePresentationTab(tab.id)}
+                        className="flex flex-1 cursor-pointer items-center justify-center px-1"
+                      >
+                        <span className={`font-ui text-[7px] uppercase tracking-[0.08em] transition-colors duration-200 sm:text-[8px] sm:tracking-[0.12em] md:text-[9px] md:tracking-[0.16em] text-center leading-tight ${
+                          activePresentationTab === tab.id
+                            ? "text-[var(--foreground)]"
+                            : "text-[var(--muted)]"
+                        }`}>
+                          {tab.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Content area — empty for now */}
+                  <div className="absolute left-0 right-0 bottom-0 top-12 sm:top-14 md:top-16 z-20" />
                 </motion.div>
               )}
 
