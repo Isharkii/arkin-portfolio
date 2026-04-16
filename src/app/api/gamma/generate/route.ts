@@ -27,14 +27,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { prompt: string; theme?: string };
+  let body: { prompt: string; themeId?: string };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { prompt } = body;
+  const { prompt, themeId } = body;
   if (!prompt?.trim()) {
     return NextResponse.json({ error: "prompt is required." }, { status: 400 });
   }
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         format: "presentation",
         exportAs: "pptx",
         sharingOptions: { externalAccess: "view" },
+        ...(themeId ? { themeId } : {}),
       }),
     });
 
@@ -126,9 +127,10 @@ export async function POST(req: NextRequest) {
       const title    = pollData.title ?? prompt.slice(0, 80);
       const gammaUrl = pollData.gammaUrl ?? "https://gamma.app";
 
-      // ── Step 3: download PPTX from Gamma and re-host on Vercel Blob ──────────
-      let pptxUrl: string | undefined;
-      if (pollData.exportUrl) {
+      // ── Step 3: host PPTX on Vercel Blob for a stable public URL ────────────
+      // Falls back to Gamma's pre-signed exportUrl if Blob isn't configured.
+      let pptxUrl: string | undefined = pollData.exportUrl; // fallback
+      if (pollData.exportUrl && process.env.BLOB_READ_WRITE_TOKEN) {
         try {
           const pptxRes = await fetch(pollData.exportUrl);
           if (pptxRes.ok) {
@@ -138,14 +140,13 @@ export async function POST(req: NextRequest) {
               access: "public",
               contentType:
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-              // Overwrite if regenerated with the same ID
               allowOverwrite: true,
             });
             pptxUrl = blob.url;
           }
         } catch (err) {
-          // Non-fatal: preview won't be available but the rest still works
-          console.error("[gamma] blob upload failed:", err);
+          console.error("[gamma] blob upload failed, using raw exportUrl:", err);
+          pptxUrl = pollData.exportUrl; // keep fallback
         }
       }
 

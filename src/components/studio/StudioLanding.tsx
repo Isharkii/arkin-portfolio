@@ -176,33 +176,54 @@ function AIPresentationCards({ onSelect }: { onSelect: (id: string) => void }) {
 
 // ─── ThemePicker ───────────────────────────────────────────────────────────────
 
-interface PaletteTheme {
+interface GammaTheme {
   id: string;
   name: string;
-  type: "dark" | "light";
+  type: "standard" | "custom";
   colorKeywords: string[];
   toneKeywords: string[];
-  colors: [string, string, string];
 }
 
-const PALETTE_THEMES: PaletteTheme[] = [
-  { id: "midnight",   name: "Midnight",    type: "dark",  colorKeywords: ["navy","steel","electric"],   toneKeywords: ["professional","bold"],      colors: ["#0f172a","#1e3a5f","#3b82f6"] },
-  { id: "aurora",     name: "Aurora",      type: "dark",  colorKeywords: ["violet","indigo","lavender"], toneKeywords: ["creative","dreamy"],        colors: ["#4c1d95","#6d28d9","#a78bfa"] },
-  { id: "slate",      name: "Slate",       type: "light", colorKeywords: ["gray","cool","silver"],       toneKeywords: ["minimal","clean"],          colors: ["#f8fafc","#94a3b8","#334155"] },
-  { id: "ocean",      name: "Ocean",       type: "dark",  colorKeywords: ["teal","cyan","deep-blue"],    toneKeywords: ["calm","trustworthy"],       colors: ["#0c4a6e","#0369a1","#38bdf8"] },
-  { id: "forest",     name: "Forest",      type: "dark",  colorKeywords: ["green","sage","earth"],       toneKeywords: ["natural","grounded"],       colors: ["#14532d","#166534","#4ade80"] },
-  { id: "ember",      name: "Ember",       type: "dark",  colorKeywords: ["orange","amber","fire"],      toneKeywords: ["energetic","warm"],         colors: ["#431407","#9a3412","#fb923c"] },
-  { id: "rose",       name: "Rose",        type: "light", colorKeywords: ["pink","blush","soft-red"],    toneKeywords: ["friendly","approachable"],  colors: ["#fff1f2","#fda4af","#e11d48"] },
-  { id: "monochrome", name: "Monochrome",  type: "light", colorKeywords: ["black","white","gray"],       toneKeywords: ["editorial","stark"],        colors: ["#ffffff","#737373","#000000"] },
-  { id: "sapphire",   name: "Sapphire",    type: "dark",  colorKeywords: ["blue","cobalt","royal"],      toneKeywords: ["corporate","authoritative"],colors: ["#1e1b4b","#3730a3","#818cf8"] },
-  { id: "gold",       name: "Gold",        type: "light", colorKeywords: ["gold","amber","cream"],       toneKeywords: ["luxury","premium"],         colors: ["#fffbeb","#fcd34d","#92400e"] },
-  { id: "lavender",   name: "Lavender",    type: "light", colorKeywords: ["purple","lilac","soft"],      toneKeywords: ["elegant","feminine"],       colors: ["#f5f3ff","#c4b5fd","#7c3aed"] },
-  { id: "crimson",    name: "Crimson",     type: "dark",  colorKeywords: ["red","burgundy","deep"],      toneKeywords: ["bold","powerful"],          colors: ["#450a0a","#991b1b","#f87171"] },
-  { id: "arctic",     name: "Arctic",      type: "light", colorKeywords: ["ice","pale-blue","white"],    toneKeywords: ["fresh","airy"],             colors: ["#f0f9ff","#7dd3fc","#0ea5e9"] },
-  { id: "obsidian",   name: "Obsidian",    type: "dark",  colorKeywords: ["black","charcoal","carbon"],  toneKeywords: ["sleek","modern"],           colors: ["#09090b","#27272a","#71717a"] },
-  { id: "mint",       name: "Mint",        type: "light", colorKeywords: ["green","mint","fresh"],       toneKeywords: ["healthy","optimistic"],     colors: ["#f0fdf4","#86efac","#16a34a"] },
-  { id: "dusk",       name: "Dusk",        type: "dark",  colorKeywords: ["purple","pink","gradient"],   toneKeywords: ["artistic","vibrant"],       colors: ["#2d1b69","#7c3aed","#f472b6"] },
-];
+/** Map Gamma color keywords → approximate hex swatches */
+const KEYWORD_COLOR_MAP: Record<string, string> = {
+  // Blues
+  blue: "#3b82f6", navy: "#1e3a5f", cobalt: "#2563eb", royal: "#1d4ed8",
+  sapphire: "#2563eb", electric: "#60a5fa", "pale-blue": "#bfdbfe", azure: "#38bdf8",
+  // Purples
+  purple: "#8b5cf6", violet: "#7c3aed", indigo: "#4f46e5", lavender: "#a78bfa",
+  lilac: "#c4b5fd", amethyst: "#9333ea", mauve: "#c084fc",
+  // Pinks / Reds
+  pink: "#ec4899", blush: "#fda4af", rose: "#fb7185", red: "#ef4444",
+  crimson: "#dc2626", burgundy: "#991b1b", "soft-red": "#f87171",
+  // Greens
+  green: "#22c55e", emerald: "#10b981", sage: "#4ade80", mint: "#6ee7b7",
+  forest: "#166534", earth: "#65a30d", teal: "#14b8a6",
+  // Oranges / Yellows
+  orange: "#f97316", amber: "#f59e0b", fire: "#fb923c", gold: "#fbbf24",
+  yellow: "#eab308",
+  // Neutrals
+  white: "#f8fafc", cream: "#fffbeb", light: "#f1f5f9", "pale-yellow": "#fef9c3",
+  gray: "#94a3b8", silver: "#cbd5e1", slate: "#475569", cool: "#64748b",
+  charcoal: "#374151", carbon: "#1f2937", black: "#09090b", dark: "#111827",
+  obsidian: "#0f172a",
+  // Cyan / Ice
+  cyan: "#22d3ee", ice: "#e0f2fe", arctic: "#bae6fd", steel: "#7dd3fc",
+  // Gradients / Misc
+  gradient: "#6d28d9", holographic: "#818cf8", iridescent: "#a78bfa",
+  neon: "#4ade80", sunset: "#fb923c", dusk: "#7c3aed",
+};
+
+function keywordToHex(kw: string): string {
+  const normalized = kw.toLowerCase().replace(/[^a-z-]/g, "");
+  return KEYWORD_COLOR_MAP[normalized] ?? "#94a3b8";
+}
+
+/** Derive a 3-color swatch from a theme's colorKeywords */
+function themeSwatches(theme: GammaTheme): [string, string, string] {
+  const kws = theme.colorKeywords.slice(0, 3);
+  while (kws.length < 3) kws.push(kws[kws.length - 1] ?? "gray");
+  return kws.map(keywordToHex) as [string, string, string];
+}
 
 const dropdownVariants: Variants = {
   hidden:  { opacity: 0, y: 6, scale: 0.97 },
@@ -217,34 +238,44 @@ interface ThemePickerProps {
 }
 
 function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
-  const [open, setOpen]       = useState(false);
-  // anchor: distance from viewport bottom + left edge
-  const [pos, setPos]         = useState({ bottom: 0, left: 0, maxH: 320 });
-  const [mounted, setMounted] = useState(false);
-  const triggerRef            = useRef<HTMLButtonElement>(null);
-  const selected              = PALETTE_THEMES.find((t) => t.id === value) ?? null;
+  const [open, setOpen]           = useState(false);
+  const [pos, setPos]             = useState({ bottom: 0, left: 0, maxH: 320 });
+  const [mounted, setMounted]     = useState(false);
+  const [themes, setThemes]       = useState<GammaTheme[]>([]);
+  const [loadingThemes, setLoadingThemes] = useState(false);
+  const triggerRef                = useRef<HTMLButtonElement>(null);
+  const selected                  = themes.find((t) => t.id === value) ?? null;
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Load themes once on first open
+  useEffect(() => {
+    if (!open || themes.length > 0 || loadingThemes) return;
+    setLoadingThemes(true);
+    fetch("/api/gamma/themes")
+      .then((r) => r.json())
+      .then((d) => { if (Array.isArray(d.themes)) setThemes(d.themes); })
+      .catch(() => {/* silently fail */})
+      .finally(() => setLoadingThemes(false));
+  }, [open, themes.length, loadingThemes]);
 
   function handleToggle() {
     if (!open && triggerRef.current) {
       const r = triggerRef.current.getBoundingClientRect();
-      // position bottom of dropdown 8px above button top
       const bottomGap = window.innerHeight - r.top + 8;
-      // clamp left so the 320px panel never overflows right edge
       const left = Math.min(r.left, window.innerWidth - 320 - 16);
-      // max height: space above button minus 16px breathing room
       const maxH = Math.min(320, r.top - 24);
       setPos({ bottom: bottomGap, left, maxH });
     }
     setOpen((v) => !v);
   }
 
+  const selectedSwatches = selected ? themeSwatches(selected) : null;
+
   const dropdown = (
     <AnimatePresence>
       {open && (
         <>
-          {/* outside-click trap */}
           <div className="fixed inset-0 z-[9998]" aria-hidden onClick={() => setOpen(false)} />
           <motion.div
             key="theme-dropdown"
@@ -252,48 +283,54 @@ function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            style={{
-              position: "fixed",
-              bottom: pos.bottom,
-              left:   pos.left,
-              zIndex: 9999,
-            }}
+            style={{ position: "fixed", bottom: pos.bottom, left: pos.left, zIndex: 9999 }}
             className="w-80 overflow-hidden rounded-2xl border border-black/[0.08] bg-white shadow-xl dark:border-white/[0.08] dark:bg-[#111] dark:shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           >
-            <div className="overflow-y-auto p-1" style={{ maxHeight: pos.maxH }}>
-              <div className="grid grid-cols-2 gap-1.5 p-1">
-                {PALETTE_THEMES.map((t) => {
-                  const isSelected = value === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => { onChange(t.id); setOpen(false); }}
-                      className={`w-full rounded-xl border p-3 text-left transition-colors duration-100 ${
-                        isSelected
-                          ? "border-violet-400 bg-violet-50 dark:border-violet-500 dark:bg-violet-500/10"
-                          : "border-transparent hover:border-black/[0.07] hover:bg-gray-50 dark:hover:border-white/[0.06] dark:hover:bg-white/[0.04]"
-                      }`}
-                    >
-                      <div className="mb-2 flex h-8 w-full overflow-hidden rounded-md">
-                        {t.colors.map((hex, i) => (
-                          <span key={i} className="flex-1" style={{ background: hex }} />
-                        ))}
-                      </div>
-                      <p
-                        className="text-xs font-medium text-gray-700 dark:text-white/70"
-                        style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}
-                      >
-                        {t.name}
-                      </p>
-                      <p className="mt-0.5 text-[9px] text-gray-400 dark:text-white/25">
-                        {t.colorKeywords.join(" · ")} · {t.toneKeywords.join(" · ")}
-                      </p>
-                    </button>
-                  );
-                })}
+            {loadingThemes ? (
+              <div className="flex h-24 items-center justify-center">
+                <svg className="h-4 w-4 animate-spin text-gray-400" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" strokeLinecap="round" />
+                </svg>
               </div>
-            </div>
+            ) : themes.length === 0 ? (
+              <p className="p-4 text-center text-[11px] text-gray-400">No themes found.</p>
+            ) : (
+              <div className="overflow-y-auto p-1" style={{ maxHeight: pos.maxH }}>
+                <div className="grid grid-cols-2 gap-1.5 p-1">
+                  {themes.map((t) => {
+                    const isSelected = value === t.id;
+                    const swatches   = themeSwatches(t);
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => { onChange(t.id); setOpen(false); }}
+                        className={`w-full rounded-xl border p-3 text-left transition-colors duration-100 ${
+                          isSelected
+                            ? "border-violet-400 bg-violet-50 dark:border-violet-500 dark:bg-violet-500/10"
+                            : "border-transparent hover:border-black/[0.07] hover:bg-gray-50 dark:hover:border-white/[0.06] dark:hover:bg-white/[0.04]"
+                        }`}
+                      >
+                        <div className="mb-2 flex h-8 w-full overflow-hidden rounded-md">
+                          {swatches.map((hex, i) => (
+                            <span key={i} className="flex-1" style={{ background: hex }} />
+                          ))}
+                        </div>
+                        <p className="text-xs font-medium text-gray-700 dark:text-white/70"
+                           style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+                          {t.name}
+                        </p>
+                        {t.toneKeywords?.length > 0 && (
+                          <p className="mt-0.5 text-[9px] text-gray-400 dark:text-white/25">
+                            {t.toneKeywords.slice(0, 3).join(" · ")}
+                          </p>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </motion.div>
         </>
       )}
@@ -315,10 +352,10 @@ function ThemePicker({ value, onChange, disabled }: ThemePickerProps) {
             : "border-black/[0.08] bg-[var(--background)]/60 text-gray-400 hover:border-violet-300 hover:text-violet-600 dark:border-white/[0.08] dark:text-white/30 dark:hover:border-violet-500/60 dark:hover:text-violet-400"
         }`}
       >
-        {selected ? (
+        {selectedSwatches ? (
           <>
             <span className="flex items-center gap-[2px]">
-              {selected.colors.map((hex, i) => (
+              {selectedSwatches.map((hex, i) => (
                 <span key={i} className="inline-block h-3 w-3 rounded-[2px]" style={{ background: hex }} />
               ))}
             </span>
@@ -389,7 +426,7 @@ function GenerateChatbox({ onGenerated, onGeneratingChange }: GenerateChatboxPro
       const res = await fetch("/api/gamma/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim(), theme: theme || undefined }),
+        body: JSON.stringify({ prompt: prompt.trim(), themeId: theme || undefined }),
       });
 
       const data = await res.json();
