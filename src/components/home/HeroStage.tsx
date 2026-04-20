@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 
 import { getArcStyle } from "./arc-layout";
 import { ProjectCard, type ProjectCardData } from "./project-card";
-import { SegmentedToggle, type ToggleTab } from "./SegmentedToggle";
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
@@ -106,12 +105,16 @@ const springParallax = { type: "spring", stiffness: 60,  damping: 20 } as const;
 
 type Phase = 1 | 2 | 3;
 
-export function HeroStage() {
+type HeroStageProps = {
+  onHoveredProjectChange: (project: ProjectCardData | null) => void;
+  onPhase3: () => void;
+};
+
+export function HeroStage({ onHoveredProjectChange, onPhase3 }: HeroStageProps) {
   const [phase,      setPhase]      = useState<Phase>(1);
   const [hoveredId,  setHoveredId]  = useState<string | null>(null);
   const [swipeIndex, setSwipeIndex] = useState<number | null>(null);
   const [mouse,      setMouse]      = useState({ x: 0, y: 0 });
-  const [activeTab,  setActiveTab]  = useState<ToggleTab>("Work");
   const reduceMotion = useReducedMotion();
 
   const activeId = hoveredId ?? (swipeIndex !== null ? galleryProjects[swipeIndex].id : null);
@@ -129,6 +132,19 @@ export function HeroStage() {
     const t2 = window.setTimeout(() => setPhase(3), 1400);
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
   }, [reduceMotion]);
+
+  // Notify parent when phase 3 begins so it can show the fixed UI overlay
+  useEffect(() => {
+    if (phase === 3) onPhase3();
+  // onPhase3 is stable (useCallback in parent) — intentionally omitted to fire once
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  // Notify parent of hovered project so fixed overlay can reflect it
+  useEffect(() => {
+    onHoveredProjectChange(hoveredProject ?? null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hoveredId, swipeIndex]);
 
   // ── Mouse parallax (desktop) ──────────────────────────────────────────────────
   useEffect(() => {
@@ -266,48 +282,6 @@ export function HeroStage() {
               );
             })}
 
-            {/* Info strip + toggle — stacked, floats below the arc */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20, transition: { duration: 0.16 } }}
-              transition={{
-                opacity: { duration: 0.4, delay: reduceMotion ? 0 : 0.55 },
-                y: { type: "spring", stiffness: 120, damping: 18, delay: reduceMotion ? 0 : 0.55 },
-              }}
-              className="absolute bottom-[12%] sm:bottom-[14%] flex flex-col items-center gap-3"
-              style={{ left: "50%", transform: "translateX(-50%)", zIndex: 35 }}
-            >
-              {/* Project info strip — changes on hover */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={hoveredProject?.id ?? "default"}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-center"
-                  style={{ minHeight: "2.5rem" }}
-                >
-                  {hoveredProject ? (
-                    <>
-                      <p className="font-display text-[clamp(0.95rem,1.4vw,1.15rem)] leading-none tracking-[-0.03em]" style={{ color: "var(--foreground)" }}>
-                        {hoveredProject.title}
-                      </p>
-                      <p className="font-ui mt-1 text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--muted)" }}>
-                        {hoveredProject.metric} · {hoveredProject.eyebrow}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="font-ui text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--muted)", opacity: 0.45 }}>
-                      Hover a card to explore
-                    </p>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-
-              <SegmentedToggle activeTab={activeTab} onChange={setActiveTab} />
-            </motion.div>
           </>
         )}
       </AnimatePresence>

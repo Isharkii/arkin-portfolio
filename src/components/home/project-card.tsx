@@ -51,7 +51,7 @@ export function ProjectCard({
             alt={project.alt}
             fill
             priority={priority}
-            sizes="(max-width: 640px) 220px, (max-width: 768px) 200px, 220px"
+            sizes="(max-width: 640px) 440px, (max-width: 768px) 400px, 440px"
             className="object-cover object-top"
           />
         ) : (

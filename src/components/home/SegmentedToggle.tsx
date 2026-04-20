@@ -3,19 +3,18 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export type ToggleTab = "Work" | "Skills" | "Projects";
+export type ToggleTab = "Work" | "Skills";
 
 type SegmentedToggleProps = {
   activeTab: ToggleTab;
   onChange: (tab: ToggleTab) => void;
 };
 
-const TABS: ToggleTab[] = ["Work", "Skills", "Projects"];
+const TABS: ToggleTab[] = ["Work", "Skills"];
 
 const TAB_ROUTES: Record<ToggleTab, string> = {
-  Work:     "/work",
-  Skills:   "/skills",
-  Projects: "/projects",
+  Work:   "/work",
+  Skills: "/skills",
 };
 
 export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {

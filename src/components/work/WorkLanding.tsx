@@ -1,6 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { AuroraBackgroundFixed } from "@/components/ui/aurora-background";
 
 const experience = [
   {
@@ -30,11 +32,36 @@ const experience = [
 ];
 
 export default function WorkLanding() {
+  const router = useRouter();
+
   return (
-    <div className="min-h-screen w-full bg-[var(--background)]">
+    <div className="min-h-screen w-full">
+      <AuroraBackgroundFixed showRadialGradient />
       <div aria-hidden className="pointer-events-none fixed left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
       <div aria-hidden className="pointer-events-none fixed bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
       <div aria-hidden className="bg-paper-grid pointer-events-none fixed inset-0 opacity-30" />
+
+      {/* Right arrow — Skills */}
+      <div className="fixed right-8 top-1/2 z-40 -translate-y-1/2">
+        <motion.button
+          initial={{ opacity: 0, x: 14 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, delay: 0.55, ease: "easeOut" }}
+          whileHover={{ x: 5 }}
+          whileTap={{ scale: 0.94 }}
+          onClick={() => router.push("/skills")}
+          className="group flex flex-col items-center gap-[7px]"
+        >
+          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] backdrop-blur-md shadow-sm transition-all duration-200 group-hover:border-[var(--foreground)]/20 group-hover:shadow-md">
+            <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4 text-[var(--muted)] transition-colors duration-200 group-hover:text-[var(--foreground)]" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </div>
+          <span className="font-ui text-[9px] uppercase tracking-[0.24em] text-[var(--muted)] transition-colors duration-200 group-hover:text-[var(--foreground)]">
+            Skills
+          </span>
+        </motion.button>
+      </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[860px] px-6 py-[100px] sm:px-10 sm:py-[110px] md:px-8 md:py-[120px]">
 
@@ -72,7 +99,6 @@ export default function WorkLanding() {
               transition={{ duration: 0.45, delay: 0.34 + i * 0.12, ease: "easeOut" }}
               className="overflow-hidden rounded-2xl border border-[var(--line)]"
             >
-              {/* Gradient header */}
               <div className="px-6 py-5" style={{ background: exp.gradient }}>
                 <div className="flex items-center justify-between">
                   <div>
@@ -89,7 +115,6 @@ export default function WorkLanding() {
                 </div>
               </div>
 
-              {/* Points */}
               <div className="bg-[var(--surface-soft)] px-6 py-5">
                 <div className="flex flex-col gap-4">
                   {exp.points.map((point) => (
@@ -103,8 +128,6 @@ export default function WorkLanding() {
                     </div>
                   ))}
                 </div>
-
-                {/* Tech stack */}
                 <div className="mt-5 flex flex-wrap gap-2">
                   {exp.tech.map((t) => (
                     <span key={t} className="rounded-full border border-[var(--line)] px-[10px] py-[4px] font-ui text-[10px] uppercase tracking-[0.14em] text-[var(--muted)]">

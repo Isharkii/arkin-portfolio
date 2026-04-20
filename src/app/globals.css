@@ -40,10 +40,6 @@ html[data-theme="dark"] {
 
 html,
 body {
-  height: 100%;
-  /* overflow: hidden removed — component-level overflow-hidden on the section
-     handles visual containment. Removing it here prevents mobile browsers
-     from clipping content when the address bar collapses/expands. */
   overflow-x: hidden;
 }
 
