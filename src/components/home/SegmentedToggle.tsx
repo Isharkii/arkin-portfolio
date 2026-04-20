@@ -3,21 +3,27 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export type ToggleTab = "Work" | "Skills";
+export type ToggleTab = "Work" | "Skills" | "Projects";
 
 type SegmentedToggleProps = {
   activeTab: ToggleTab;
   onChange: (tab: ToggleTab) => void;
 };
 
-const TABS: ToggleTab[] = ["Work", "Skills"];
+const TABS: ToggleTab[] = ["Work", "Skills", "Projects"];
+
+const TAB_ROUTES: Record<ToggleTab, string> = {
+  Work:     "/work",
+  Skills:   "/skills",
+  Projects: "/projects",
+};
 
 export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
   const router = useRouter();
 
   function handleClick(tab: ToggleTab) {
     onChange(tab);
-    router.push(tab === "Work" ? "/projects" : "/playground");
+    router.push(TAB_ROUTES[tab]);
   }
 
   return (
@@ -33,7 +39,7 @@ export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
             key={tab}
             type="button"
             onClick={() => handleClick(tab)}
-            className="relative min-h-[34px] min-w-[72px] rounded-full px-5 py-[10px] text-[13px] font-medium leading-none"
+            className="relative min-h-[34px] min-w-[64px] rounded-full px-4 py-[10px] text-[13px] font-medium leading-none"
           >
             {isActive && (
               <motion.span
@@ -42,11 +48,7 @@ export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
                 transition={{ type: "spring", stiffness: 380, damping: 28 }}
               />
             )}
-            <span
-              className={`relative z-10 select-none font-ui transition-colors duration-200 ${
-                isActive ? "text-white" : "text-black/60"
-              }`}
-            >
+            <span className={`relative z-10 select-none font-ui transition-colors duration-200 ${isActive ? "text-white" : "text-black/60"}`}>
               {tab}
             </span>
           </button>

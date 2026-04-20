@@ -1,7 +1,2 @@
-import PlaygroundLanding from "@/components/playground/PlaygroundLanding";
-
-export const metadata = { title: "Playground — Arkin Sharma" };
-
-export default function PlaygroundPage() {
-  return <PlaygroundLanding />;
-}
+import { redirect } from "next/navigation";
+export default function PlaygroundPage() { redirect("/connect"); }
