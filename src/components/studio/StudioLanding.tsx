@@ -887,7 +887,6 @@ const TemplateChatbox = memo(function TemplateChatbox({
   onCreatingChange,
 }: TemplateChatboxProps) {
   const [prompt, setPrompt]       = useState("");
-  const [theme, setTheme]         = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError]         = useState<string | null>(null);
 
@@ -901,7 +900,7 @@ const TemplateChatbox = memo(function TemplateChatbox({
       const res = await fetch("/api/gamma/generate-from-template", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: prompt.trim(), gammaId, themeId: theme || undefined }),
+        body: JSON.stringify({ prompt: prompt.trim(), gammaId }),
       });
 
       const data = await res.json();
@@ -968,7 +967,6 @@ const TemplateChatbox = memo(function TemplateChatbox({
 
       {/* Toolbar */}
       <div className="flex items-center gap-2.5">
-        <ThemePicker value={theme} onChange={setTheme} disabled={isLoading} />
         <div className="flex-1" />
         {!isLoading && (
           <span className="font-ui hidden text-[10px] text-[var(--muted)]/40 sm:block">
