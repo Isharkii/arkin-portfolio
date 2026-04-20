@@ -258,47 +258,7 @@ export function HeroStage() {
                         onMouseEnter={() => setHoveredId(project.id)}
                         onMouseLeave={() => setHoveredId(null)}
                       >
-                        {isCenter ? (
-                          /* Center card: Arkin photo + dynamic hover text below */
-                          <div className="flex flex-col items-center" style={{ gap: "0.6rem" }}>
-                            <ProjectCard
-                              project={project}
-                              isCenter
-                              dynamicTitle={hoveredProject?.title}
-                              dynamicEyebrow={hoveredProject?.eyebrow}
-                              dynamicMetric={hoveredProject?.metric}
-                            />
-                            {/* Below-card tech strip */}
-                            <AnimatePresence mode="wait">
-                              <motion.div
-                                key={hoveredProject?.id ?? "default"}
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.22 }}
-                                className="text-center"
-                              >
-                                {hoveredProject ? (
-                                  <p
-                                    className="font-ui text-[9px] uppercase tracking-[0.2em] sm:text-[10px]"
-                                    style={{ color: "var(--muted)" }}
-                                  >
-                                    {hoveredProject.tech}
-                                  </p>
-                                ) : (
-                                  <p
-                                    className="font-ui text-[9px] uppercase tracking-[0.2em] sm:text-[10px]"
-                                    style={{ color: "var(--muted)", opacity: 0.5 }}
-                                  >
-                                    Hover a card
-                                  </p>
-                                )}
-                              </motion.div>
-                            </AnimatePresence>
-                          </div>
-                        ) : (
-                          <ProjectCard project={project} isCenter={false} />
-                        )}
+                        <ProjectCard project={project} isCenter={isCenter} />
                       </motion.div>
                     </div>
                   </motion.div>
@@ -306,18 +266,46 @@ export function HeroStage() {
               );
             })}
 
-            {/* Segmented toggle — floats below the arc */}
+            {/* Info strip + toggle — stacked, floats below the arc */}
             <motion.div
-              initial={{ opacity: 0, y: 20, x: "-50%" }}
-              animate={{ opacity: 1, y: 0,  x: "-50%" }}
-              exit={{ opacity: 0, y: 20, x: "-50%", transition: { duration: 0.16 } }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20, transition: { duration: 0.16 } }}
               transition={{
                 opacity: { duration: 0.4, delay: reduceMotion ? 0 : 0.55 },
                 y: { type: "spring", stiffness: 120, damping: 18, delay: reduceMotion ? 0 : 0.55 },
               }}
-              className="absolute bottom-[12%] sm:bottom-[14%]"
-              style={{ left: "50%", zIndex: 35 }}
+              className="absolute bottom-[12%] sm:bottom-[14%] flex flex-col items-center gap-3"
+              style={{ left: "50%", transform: "translateX(-50%)", zIndex: 35 }}
             >
+              {/* Project info strip — changes on hover */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={hoveredProject?.id ?? "default"}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-center"
+                  style={{ minHeight: "2.5rem" }}
+                >
+                  {hoveredProject ? (
+                    <>
+                      <p className="font-display text-[clamp(0.95rem,1.4vw,1.15rem)] leading-none tracking-[-0.03em]" style={{ color: "var(--foreground)" }}>
+                        {hoveredProject.title}
+                      </p>
+                      <p className="font-ui mt-1 text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--muted)" }}>
+                        {hoveredProject.metric} · {hoveredProject.eyebrow}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="font-ui text-[10px] uppercase tracking-[0.2em]" style={{ color: "var(--muted)", opacity: 0.45 }}>
+                      Hover a card to explore
+                    </p>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
               <SegmentedToggle activeTab={activeTab} onChange={setActiveTab} />
             </motion.div>
           </>

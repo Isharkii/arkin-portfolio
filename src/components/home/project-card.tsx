@@ -17,10 +17,6 @@ type ProjectCardProps = {
   className?: string;
   isCenter?: boolean;
   priority?: boolean;
-  /** Passed from parent when a sibling card is hovered — overrides card's own text */
-  dynamicTitle?: string;
-  dynamicEyebrow?: string;
-  dynamicMetric?: string;
 };
 
 export function ProjectCard({
@@ -28,13 +24,10 @@ export function ProjectCard({
   className = "",
   isCenter = false,
   priority = false,
-  dynamicTitle,
-  dynamicEyebrow,
-  dynamicMetric,
 }: ProjectCardProps) {
-  const displayTitle   = dynamicTitle   ?? project.title;
-  const displayEyebrow = dynamicEyebrow ?? project.eyebrow;
-  const displayMetric  = dynamicMetric  ?? project.metric;
+  const displayTitle   = project.title;
+  const displayEyebrow = project.eyebrow;
+  const displayMetric  = project.metric;
 
   return (
     <article
