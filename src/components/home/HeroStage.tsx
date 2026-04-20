@@ -22,10 +22,12 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-import hiringImage from "../../../placeholder_images/327439864_0e229c72-bb61-410d-9ccc-83676217513d-scaled.png";
-import beatoImage from "../../../placeholder_images/PW_Mockup_1-scaled.png";
-import reebloImage from "../../../placeholder_images/Picture11.png";
-import craftImage from "../../../placeholder_images/psd-2-scaled.png";
+import img1 from "../../../placeholder_images/PW_Mockup_1-scaled.jpg";
+import img2 from "../../../placeholder_images/1800.avif";
+import img3 from "../../../placeholder_images/EQXHADNGTVHRFNZXNAVJUE4FXU.avif";
+import img4 from "../../../placeholder_images/Tc9BunCTwmJEmQNg5AFiFJ.jpg";
+import img5 from "../../../placeholder_images/final-fantasy-rebirth-4.avif";
+import img6 from "../../../placeholder_images/ft-001_9a1927.webp";
 
 import { getArcStyle } from "./arc-layout";
 import { ProjectCard, type ProjectCardData } from "./project-card";
@@ -37,18 +39,18 @@ const leadProject: ProjectCardData = {
   id: "lead",
   title: "Selected Work",
   eyebrow: "Launch archive",
-  image: beatoImage,
-  alt: "BeatO presentation mockup laid out across a dark canvas.",
+  image: img1,
+  alt: "Presentation mockup.",
 };
 
 const galleryProjects: ProjectCardData[] = [
-  { id: "hiring",   title: "Hiring",   eyebrow: "Campaign system",  image: hiringImage, alt: "Blue hiring campaign boards." },
-  { id: "beato",    title: "BeatO",    eyebrow: "Product story",    image: beatoImage,  alt: "BeatO product deck." },
-  { id: "reeblo",   title: "Reeblo",   eyebrow: "Partner deck",     image: reebloImage, alt: "Reeblo vendor deck slides." },
-  { id: "craft",    title: "Craft",    eyebrow: "Packaging story",  image: craftImage,  alt: "Craft Juices presentation." },
-  { id: "indeed",   title: "Indeed",   eyebrow: "Rollout frames",   image: hiringImage, alt: "Indeed campaign layout." },
-  { id: "platform", title: "Platform", eyebrow: "Deck system",      image: beatoImage,  alt: "Healthcare presentation mockups." },
-  { id: "brand",    title: "Brand",    eyebrow: "Identity system",  image: reebloImage, alt: "Brand identity slides." },
+  { id: "p1", title: "Campaign",  eyebrow: "Campaign system",  image: img2, alt: "Presentation slide 1." },
+  { id: "p2", title: "Deck",      eyebrow: "Product story",    image: img3, alt: "Presentation slide 2." },
+  { id: "p3", title: "Partner",   eyebrow: "Partner deck",     image: img4, alt: "Presentation slide 3." },
+  { id: "p4", title: "Showcase",  eyebrow: "Visual story",     image: img5, alt: "Presentation slide 4." },
+  { id: "p5", title: "Series",    eyebrow: "Rollout frames",   image: img6, alt: "Presentation slide 5." },
+  { id: "p6", title: "Platform",  eyebrow: "Deck system",      image: img1, alt: "Presentation slide 6." },
+  { id: "p7", title: "Brand",     eyebrow: "Identity system",  image: img2, alt: "Presentation slide 7." },
 ];
 
 const TOTAL        = galleryProjects.length;     // 7
