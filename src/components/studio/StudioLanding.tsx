@@ -626,7 +626,7 @@ const PasteTextChatbox = memo(function PasteTextChatbox({ onCreated, onCreatingC
         placeholder="Paste your notes, outline, or existing content here…"
         disabled={isLoading}
         className="font-ui w-full resize-none rounded-xl border border-[var(--line)] bg-[var(--background)]/90 px-4 py-3 text-[13px] leading-relaxed text-[var(--foreground)] placeholder:text-[var(--muted)]/45 transition-shadow focus:outline-none focus:ring-2 focus:ring-blue-400/25 overflow-y-auto sm:text-[14px] disabled:opacity-50"
-        style={{ height: "200px" }}
+        style={{ height: "320px" }}
       />
 
       {/* Error */}

@@ -45,7 +45,7 @@ export default function AboutLanding() {
             transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
             className="font-display mt-4 text-[clamp(1.5rem,4vw,4rem)] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)]"
           >
-            We bring the oomph
+            We bring the <em>oomph</em>
             <br />
             your presentations need.
           </motion.h1>
