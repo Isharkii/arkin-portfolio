@@ -3,31 +3,16 @@
 /**
  * HeroStage — 3-phase animated card gallery
  *
- * Phase 1 (0 → ~700ms)
- *   Lead card springs in from below.
- *
- * Phase 2 (~700ms → ~1400ms)
- *   Lead card rests at center — editorial pause.
- *
- * Phase 3 (~1400ms → ∞)
- *   Lead card fades; 7 gallery cards fan into a horizontal arc.
- *
- *   Desktop  — mouse hover highlights a card (scale 1.05, siblings blur).
- *   Mobile   — swipe left/right cycles the highlight through the arc.
- *              The arc itself never pans; only the focus moves.
- *
- * Accessibility: prefers-reduced-motion skips to phase 3 immediately.
+ * Phase 1 (0 → 700ms)   Lead card (Arkin photo) springs in from below.
+ * Phase 2 (700 → 1400ms) Editorial pause at center.
+ * Phase 3 (1400ms → ∞)  Card fades; 7-card arc fans out.
+ *                        Center card = Arkin photo with dynamic text.
+ *                        Hovering a project card updates the center card text
+ *                        and shows tech stack below it.
  */
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-
-import img1 from "../../../placeholder_images/PW_Mockup_1-scaled.jpg";
-import img2 from "../../../placeholder_images/1800.avif";
-import img3 from "../../../placeholder_images/EQXHADNGTVHRFNZXNAVJUE4FXU.avif";
-import img4 from "../../../placeholder_images/Tc9BunCTwmJEmQNg5AFiFJ.jpg";
-import img5 from "../../../placeholder_images/final-fantasy-rebirth-4.avif";
-import img6 from "../../../placeholder_images/ft-001_9a1927.webp";
 
 import { getArcStyle } from "./arc-layout";
 import { ProjectCard, type ProjectCardData } from "./project-card";
@@ -35,32 +20,87 @@ import { SegmentedToggle, type ToggleTab } from "./SegmentedToggle";
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
 
-const leadProject: ProjectCardData = {
-  id: "lead",
-  title: "Selected Work",
-  eyebrow: "Launch archive",
-  image: img1,
-  alt: "Presentation mockup.",
+const centerCard: ProjectCardData = {
+  id: "center",
+  title: "Arkin Sharma",
+  eyebrow: "AI · ML Engineer",
+  metric: "Building scalable ML systems",
+  image: "/arkin_photo.jpg",
+  alt: "Arkin Sharma — AI/ML Engineer",
 };
 
-const galleryProjects: ProjectCardData[] = [
-  { id: "p1", title: "Campaign",  eyebrow: "Campaign system",  image: img2, alt: "Presentation slide 1." },
-  { id: "p2", title: "Deck",      eyebrow: "Product story",    image: img3, alt: "Presentation slide 2." },
-  { id: "p3", title: "Partner",   eyebrow: "Partner deck",     image: img4, alt: "Presentation slide 3." },
-  { id: "p4", title: "Showcase",  eyebrow: "Visual story",     image: img5, alt: "Presentation slide 4." },
-  { id: "p5", title: "Series",    eyebrow: "Rollout frames",   image: img6, alt: "Presentation slide 5." },
-  { id: "p6", title: "Platform",  eyebrow: "Deck system",      image: img1, alt: "Presentation slide 6." },
-  { id: "p7", title: "Brand",     eyebrow: "Identity system",  image: img2, alt: "Presentation slide 7." },
+const projectCards: ProjectCardData[] = [
+  {
+    id: "scraper",
+    title: "Web Scraper",
+    eyebrow: "Concurrency · Python",
+    metric: "99.5% reliability",
+    tech: "Python · asyncio · Redis · Circuit Breakers",
+    gradient: "linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%)",
+    alt: "Multi-threaded Web Scraper project",
+  },
+  {
+    id: "rl",
+    title: "RL Framework",
+    eyebrow: "Reinforcement Learning",
+    metric: "Custom gym-compatible env",
+    tech: "PyTorch · OpenAI Gym · TensorFlow · NumPy",
+    gradient: "linear-gradient(135deg, #2d1b69 0%, #4a1c96 60%, #7b2ff7 100%)",
+    alt: "RL Framework project",
+  },
+  {
+    id: "rebee",
+    title: "NLP Pipeline",
+    eyebrow: "REBEE.AI · NLP",
+    metric: "92% extraction accuracy",
+    tech: "BERT · spaCy · FastAPI · Transformers · HuggingFace",
+    gradient: "linear-gradient(135deg, #7c2d12 0%, #c2410c 60%, #ea580c 100%)",
+    alt: "NLP Resume Summarization — REBEE.AI",
+  },
+  {
+    id: "pitchworx",
+    title: "LLM Pipeline",
+    eyebrow: "PitchWorx · Backend",
+    metric: "18% → 2% error rate",
+    tech: "FastAPI · LangChain · Prompt Engineering · Pydantic",
+    gradient: "linear-gradient(135deg, #4a0e3a 0%, #8b1a6b 60%, #c2185b 100%)",
+    alt: "LLM Pipeline — PitchWorx",
+  },
+  {
+    id: "network",
+    title: "Network Lab",
+    eyebrow: "Diagnostics · Systems",
+    metric: "DNS + packet analysis",
+    tech: "Python · Scapy · Wireshark · Linux · TCP/IP",
+    gradient: "linear-gradient(135deg, #052e16 0%, #166534 60%, #16a34a 100%)",
+    alt: "Network Diagnostics Lab project",
+  },
+  {
+    id: "api",
+    title: "API Platform",
+    eyebrow: "Backend · Scale",
+    metric: "1M+ requests/month · <100ms",
+    tech: "FastAPI · PostgreSQL · Redis · Docker · Nginx",
+    gradient: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 60%, #0ea5e9 100%)",
+    alt: "Scalable API Platform project",
+  },
 ];
 
-const TOTAL        = galleryProjects.length;     // 7
-const CENTER_INDEX = Math.floor(TOTAL / 2);      // 3
+// 7 cards total: 3 projects · center (Arkin) · 3 projects
+const galleryProjects: ProjectCardData[] = [
+  ...projectCards.slice(0, 3),
+  centerCard,
+  ...projectCards.slice(3),
+];
+
+const TOTAL        = galleryProjects.length; // 7
+const CENTER_INDEX = Math.floor(TOTAL / 2);  // 3
 
 // ─── Spring configs ────────────────────────────────────────────────────────────
 
-const springEntry   = { type: "spring", stiffness: 90,  damping: 22 } as const;
-const springGallery = { type: "spring", stiffness: 100, damping: 20 } as const;
-const springParallax= { type: "spring", stiffness: 60,  damping: 20 } as const;
+const springEntry    = { type: "spring", stiffness: 90,  damping: 22 } as const;
+const springGallery  = { type: "spring", stiffness: 100, damping: 20 } as const;
+const springParallax = { type: "spring", stiffness: 60,  damping: 20 } as const;
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
@@ -71,11 +111,16 @@ export function HeroStage() {
   const [hoveredId,  setHoveredId]  = useState<string | null>(null);
   const [swipeIndex, setSwipeIndex] = useState<number | null>(null);
   const [mouse,      setMouse]      = useState({ x: 0, y: 0 });
-  const [activeTab,  setActiveTab]  = useState<ToggleTab>("Custom");
+  const [activeTab,  setActiveTab]  = useState<ToggleTab>("Work");
   const reduceMotion = useReducedMotion();
 
-  // The "active" card: mouse hover takes priority, then touch swipe focus
   const activeId = hoveredId ?? (swipeIndex !== null ? galleryProjects[swipeIndex].id : null);
+
+  // Project hovered (excludes center card) — drives center card dynamic text
+  const hoveredProject =
+    activeId && activeId !== "center"
+      ? galleryProjects.find((p) => p.id === activeId)
+      : null;
 
   // ── Phase sequencing ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -88,33 +133,29 @@ export function HeroStage() {
   // ── Mouse parallax (desktop) ──────────────────────────────────────────────────
   useEffect(() => {
     if (reduceMotion) return;
-    const onMove = (e: MouseEvent) => setMouse({
-      x: (e.clientX - window.innerWidth  / 2) / (window.innerWidth  / 2),
-      y: (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2),
-    });
+    const onMove = (e: MouseEvent) =>
+      setMouse({
+        x: (e.clientX - window.innerWidth  / 2) / (window.innerWidth  / 2),
+        y: (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2),
+      });
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
   }, [reduceMotion]);
 
   // ── Swipe handler (mobile) ────────────────────────────────────────────────────
-  // The drag container has near-zero elastic so the arc stays visually still.
-  // The gesture is read for direction only; focus advances through galleryProjects.
   function handleArcSwipe(_: unknown, info: { offset: { x: number } }) {
-    const threshold = 40;
-    if (Math.abs(info.offset.x) < threshold) return;
-
+    if (Math.abs(info.offset.x) < 40) return;
     setSwipeIndex((prev) => {
       const current = prev ?? CENTER_INDEX;
-      if (info.offset.x < 0) return Math.max(current - 1, 0);          // swipe left  → prev (left card)
-      return Math.min(current + 1, TOTAL - 1);                          // swipe right → next (right card)
+      if (info.offset.x < 0) return Math.max(current - 1, 0);
+      return Math.min(current + 1, TOTAL - 1);
     });
   }
 
   return (
     <div className="relative h-full w-full">
 
-      {/* ── Phase 1 & 2: Lead card ──────────────────────────────────────────────
-          Enters from bottom (phase 1), rests at center (phase 2), then exits. */}
+      {/* ── Phase 1 & 2: Lead card (Arkin photo) ───────────────────────────────── */}
       <AnimatePresence>
         {phase !== 3 && (
           <motion.div
@@ -127,21 +168,17 @@ export function HeroStage() {
             className="absolute left-1/2 top-1/2"
           >
             <div style={{ transform: "translate(-50%, -50%)" }}>
-              <ProjectCard project={leadProject} isCenter priority />
+              <ProjectCard project={centerCard} isCenter priority />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Phase 3: Arc gallery ────────────────────────────────────────────────
-          Always rendered as an arc (desktop + mobile).
-          Desktop: mouse hover sets the active card.
-          Mobile: swipe on the invisible drag layer cycles activeId through the arc. */}
+      {/* ── Phase 3: Arc gallery ─────────────────────────────────────────────────── */}
       <AnimatePresence>
         {phase === 3 && (
           <>
-            {/* Invisible drag surface — mobile swipe to cycle highlight.
-                dragElastic is near-zero so the arc never visually shifts. */}
+            {/* Invisible drag surface for mobile swipe */}
             <motion.div
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
@@ -156,7 +193,8 @@ export function HeroStage() {
               const arc      = getArcStyle(index, TOTAL);
               const isCenter = index === CENTER_INDEX;
               const isActive = activeId === project.id;
-              const isBlurred= activeId !== null && !isActive;
+              // Center card never blurs — it displays the hovered project info
+              const isBlurred = activeId !== null && !isActive && !isCenter;
 
               const depth = 1 - Math.abs(index - CENTER_INDEX) / TOTAL;
               const pX = reduceMotion ? 0 : mouse.x * 6 * depth;
@@ -165,37 +203,44 @@ export function HeroStage() {
               return (
                 <motion.div
                   key={project.id}
-                  // Arc position wrapper — pointer-events:none so it never
-                  // intercepts hover; only the innermost card surface does.
-                  // z-index boosts to 30 when active so the card visually
-                  // rises above all siblings once hover is triggered.
                   initial={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0 }}
-                  animate={{ x: arc.x, y: arc.y, rotate: arc.rotate, scale: arc.scale, opacity: 1 }}
-                  exit={{ x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0, transition: { duration: 0.16 } }}
-                  transition={{ ...springGallery, delay: reduceMotion ? 0 : index * 0.06 }}
+                  animate={{
+                    x: arc.x,
+                    y: arc.y,
+                    rotate: arc.rotate,
+                    scale: arc.scale,
+                    opacity: 1,
+                  }}
+                  exit={{
+                    x: 0, y: 0, rotate: 0, scale: 0.6, opacity: 0,
+                    transition: { duration: 0.16 },
+                  }}
+                  transition={{
+                    ...springGallery,
+                    delay: reduceMotion ? 0 : index * 0.06,
+                  }}
                   style={{
                     willChange: "transform",
                     zIndex: isActive ? 30 : arc.zIndex,
                     position: "absolute",
                     left: "50%",
                     top: "50%",
-                    pointerEvents: "none",   // transparent — let events reach the card surface
+                    pointerEvents: "none",
                   }}
                 >
-                  {/* Float oscillation — also transparent to pointer events */}
+                  {/* Float oscillation */}
                   <motion.div
                     animate={reduceMotion ? {} : { y: [0, -10, 0] }}
-                    transition={{ duration: 2.6 + index * 0.22, repeat: Infinity, ease: "easeInOut", delay: index * 0.35 }}
+                    transition={{
+                      duration: 2.6 + index * 0.22,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: index * 0.35,
+                    }}
                     style={{ willChange: "transform", pointerEvents: "none" }}
                   >
-                    {/* Centering wrapper — shifts layout origin so the hit box
-                        matches the card's visual center. CSS translate here moves
-                        both visual position AND bounding rect, unlike putting
-                        -translate-x/y on the child article where only visual
-                        position moves but the parent's hit box stays at (0,0). */}
                     <div style={{ transform: "translate(-50%, -50%)", pointerEvents: "none" }}>
-                      {/* Parallax + active scale + sibling blur.
-                          THIS is the hit surface — pointer-events:auto here only. */}
+                      {/* Parallax + hover scale + sibling blur */}
                       <motion.div
                         animate={{
                           x: pX,
@@ -209,28 +254,66 @@ export function HeroStage() {
                           scale:  { type: "spring", stiffness: 300, damping: 20 },
                           filter: { duration: 0.2 },
                         }}
-                        style={{ willChange: "transform", pointerEvents: "auto", cursor: "pointer" }}
+                        style={{ willChange: "transform", pointerEvents: "auto" }}
                         onMouseEnter={() => setHoveredId(project.id)}
                         onMouseLeave={() => setHoveredId(null)}
                       >
-                        <ProjectCard project={project} isCenter={isCenter} />
+                        {isCenter ? (
+                          /* Center card: Arkin photo + dynamic hover text below */
+                          <div className="flex flex-col items-center" style={{ gap: "0.6rem" }}>
+                            <ProjectCard
+                              project={project}
+                              isCenter
+                              dynamicTitle={hoveredProject?.title}
+                              dynamicEyebrow={hoveredProject?.eyebrow}
+                              dynamicMetric={hoveredProject?.metric}
+                            />
+                            {/* Below-card tech strip */}
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={hoveredProject?.id ?? "default"}
+                                initial={{ opacity: 0, y: 6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                transition={{ duration: 0.22 }}
+                                className="text-center"
+                              >
+                                {hoveredProject ? (
+                                  <p
+                                    className="font-ui text-[9px] uppercase tracking-[0.2em] sm:text-[10px]"
+                                    style={{ color: "var(--muted)" }}
+                                  >
+                                    {hoveredProject.tech}
+                                  </p>
+                                ) : (
+                                  <p
+                                    className="font-ui text-[9px] uppercase tracking-[0.2em] sm:text-[10px]"
+                                    style={{ color: "var(--muted)", opacity: 0.5 }}
+                                  >
+                                    Hover a card
+                                  </p>
+                                )}
+                              </motion.div>
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          <ProjectCard project={project} isCenter={false} />
+                        )}
                       </motion.div>
                     </div>
                   </motion.div>
                 </motion.div>
               );
             })}
-            {/* ── Segmented toggle — floats below the arc ────────────────────────
-                Fades + slides in after cards are fully spread (0.55s delay).
-                z-index 35: must be above the drag layer (z-30) so pointer
-                events reach the buttons on both desktop and mobile. */}
+
+            {/* Segmented toggle — floats below the arc */}
             <motion.div
               initial={{ opacity: 0, y: 20, x: "-50%" }}
               animate={{ opacity: 1, y: 0,  x: "-50%" }}
               exit={{ opacity: 0, y: 20, x: "-50%", transition: { duration: 0.16 } }}
               transition={{
                 opacity: { duration: 0.4, delay: reduceMotion ? 0 : 0.55 },
-                y:       { type: "spring", stiffness: 120, damping: 18, delay: reduceMotion ? 0 : 0.55 },
+                y: { type: "spring", stiffness: 120, damping: 18, delay: reduceMotion ? 0 : 0.55 },
               }}
               className="absolute bottom-[12%] sm:bottom-[14%]"
               style={{ left: "50%", zIndex: 35 }}

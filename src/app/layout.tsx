@@ -19,8 +19,8 @@ const halant = Halant({
 });
 
 export const metadata: Metadata = {
-  title: "PitchWorx",
-  description: "Motion-first presentation design studio.",
+  title: "Arkin Sharma — AI/ML Engineer",
+  description: "AI/ML Engineer building scalable backend systems and intelligent pipelines.",
 };
 
 /**

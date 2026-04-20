@@ -3,21 +3,21 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
-export type ToggleTab = "Custom" | "AI";
+export type ToggleTab = "Work" | "Skills";
 
 type SegmentedToggleProps = {
   activeTab: ToggleTab;
   onChange: (tab: ToggleTab) => void;
 };
 
-const TABS: ToggleTab[] = ["Custom", "AI"];
+const TABS: ToggleTab[] = ["Work", "Skills"];
 
 export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
   const router = useRouter();
 
   function handleClick(tab: ToggleTab) {
     onChange(tab);
-    router.push(`/studio?tab=${tab.toLowerCase()}`);
+    router.push(tab === "Work" ? "/projects" : "/playground");
   }
 
   return (
@@ -35,7 +35,6 @@ export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
             onClick={() => handleClick(tab)}
             className="relative min-h-[34px] min-w-[72px] rounded-full px-5 py-[10px] text-[13px] font-medium leading-none"
           >
-            {/* Sliding active pill */}
             {isActive && (
               <motion.span
                 layoutId="segment-pill"
@@ -44,7 +43,7 @@ export function SegmentedToggle({ activeTab, onChange }: SegmentedToggleProps) {
               />
             )}
             <span
-              className={`relative z-10 select-none transition-colors duration-200 ${
+              className={`relative z-10 select-none font-ui transition-colors duration-200 ${
                 isActive ? "text-white" : "text-black/60"
               }`}
             >

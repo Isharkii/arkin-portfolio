@@ -5,24 +5,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type ThemeMode = "light" | "dark";
-type NavPanel = "login" | "pricing" | null;
+type NavPanel = "contact" | null;
 
 const storageKey = "pitchworx-theme";
-
-const panelCopy = {
-  pricing: {
-    eyebrow: "Pricing",
-    title: "Pricing placeholder",
-    description:
-      "Keep this slot for a compact pricing modal, package matrix, or booking flow.",
-  },
-  login: {
-    eyebrow: "Login",
-    title: "Portal placeholder",
-    description:
-      "Replace this with the final auth route once the account flow is ready.",
-  },
-} as const;
 
 function applyTheme(nextTheme: ThemeMode) {
   document.documentElement.dataset.theme = nextTheme;
@@ -63,15 +48,33 @@ function ThemeIcon({ theme }: { theme: ThemeMode }) {
   );
 }
 
+function NavLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
+    >
+      {children}
+    </Link>
+  );
+}
+
 function NavAction({
   children,
   onClick,
-  className = "",
   ariaExpanded,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  className?: string;
   ariaExpanded?: boolean;
 }) {
   return (
@@ -79,7 +82,7 @@ function NavAction({
       type="button"
       onClick={onClick}
       aria-expanded={ariaExpanded}
-      className={`font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84 ${className}`}
+      className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
     >
       {children}
     </button>
@@ -107,10 +110,7 @@ export function SiteNavbar() {
     setMounted(true);
 
     const handlePreferenceChange = (event: MediaQueryListEvent) => {
-      if (window.localStorage.getItem(storageKey)) {
-        return;
-      }
-
+      if (window.localStorage.getItem(storageKey)) return;
       const systemTheme: ThemeMode = event.matches ? "dark" : "light";
       applyTheme(systemTheme);
       setTheme(systemTheme);
@@ -133,16 +133,10 @@ export function SiteNavbar() {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) {
-      return;
-    }
-
+    if (!menuOpen) return;
     const closeMenu = () => setMenuOpen(false);
     window.addEventListener("resize", closeMenu);
-
-    return () => {
-      window.removeEventListener("resize", closeMenu);
-    };
+    return () => window.removeEventListener("resize", closeMenu);
   }, [menuOpen]);
 
   const toggleTheme = () => {
@@ -153,54 +147,33 @@ export function SiteNavbar() {
   };
 
   const togglePanel = (panel: Exclude<NavPanel, null>) => {
-    setActivePanel((currentPanel) =>
-      currentPanel === panel ? null : panel,
-    );
+    setActivePanel((current) => (current === panel ? null : panel));
     setMenuOpen(false);
   };
-
-  const panelContent = activePanel ? panelCopy[activePanel] : null;
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40">
       <div className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8">
-        <Link href="/" className="flex items-center transition-opacity duration-200 hover:opacity-75">
+        <Link
+          href="/"
+          className="flex items-center transition-opacity duration-200 hover:opacity-75"
+        >
           <span className="font-display text-[1.4rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.6rem] md:text-[1.8rem]">
-            Ishark
+            Arkin
           </span>
         </Link>
 
+        {/* Desktop nav */}
         <nav className="hidden items-center gap-3 md:flex lg:gap-4 xl:gap-5">
-          <button
-            type="button"
-            className="font-ui rounded-full bg-[#121212] px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-[#FAFAFA] transition-transform duration-200 hover:-translate-y-0.5"
-          >
-            Get Started
-          </button>
-          <Link
-            href="/services"
-            className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
-          >
-            Services
-          </Link>
+          <NavLink href="/projects">Projects</NavLink>
+          <NavLink href="/playground">Playground</NavLink>
           <NavAction
-            onClick={() => togglePanel("pricing")}
-            ariaExpanded={activePanel === "pricing"}
-          >
-            Pricing
-          </NavAction>
-          <button
-            type="button"
-            className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
+            onClick={() => togglePanel("contact")}
+            ariaExpanded={activePanel === "contact"}
           >
             Contact
-          </button>
-          <Link
-            href="/about"
-            className="font-ui text-[11px] uppercase tracking-[0.22em] text-black/56 transition-colors duration-200 hover:text-black/84"
-          >
-            About
-          </Link>
+          </NavAction>
+          <NavLink href="/about">About</NavLink>
           <button
             type="button"
             onClick={toggleTheme}
@@ -216,6 +189,7 @@ export function SiteNavbar() {
           </button>
         </nav>
 
+        {/* Mobile controls */}
         <div className="flex items-center gap-2 md:hidden">
           <button
             type="button"
@@ -244,30 +218,53 @@ export function SiteNavbar() {
         </div>
       </div>
 
+      {/* Contact panel */}
       <AnimatePresence>
-        {panelContent ? (
+        {activePanel === "contact" && (
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="pointer-events-auto mx-auto mt-1 w-[min(92vw,24rem)] rounded-[1.75rem] border border-black/10 bg-white/84 p-5 shadow-[0_20px_60px_rgba(18,18,18,0.12)] backdrop-blur-xl"
+            className="pointer-events-auto mx-auto mt-1 w-[min(92vw,22rem)] rounded-[1.75rem] border border-black/10 bg-white/84 p-5 shadow-[0_20px_60px_rgba(18,18,18,0.12)] backdrop-blur-xl"
           >
             <p className="font-ui text-[10px] uppercase tracking-[0.26em] text-black/42">
-              {panelContent.eyebrow}
+              Get in touch
             </p>
-            <h2 className="font-display mt-3 text-3xl leading-[0.92] tracking-[-0.04em] text-black/86">
-              {panelContent.title}
+            <h2 className="font-display mt-3 text-2xl leading-[0.92] tracking-[-0.04em] text-black/86">
+              Let&apos;s build something.
             </h2>
-            <p className="font-ui mt-4 text-sm leading-6 text-black/58">
-              {panelContent.description}
-            </p>
+            <div className="mt-4 flex flex-col gap-3">
+              <a
+                href="mailto:arkin2005@gmail.com"
+                className="flex items-center gap-3 rounded-xl border border-black/8 bg-black/[0.03] px-4 py-3 transition-colors hover:bg-black/[0.06]"
+              >
+                <span className="font-ui text-[10px] uppercase tracking-[0.2em] text-black/40">
+                  Email
+                </span>
+                <span className="font-ui text-[13px] text-black/80">
+                  arkin2005@gmail.com
+                </span>
+              </a>
+              <a
+                href="tel:+919910024492"
+                className="flex items-center gap-3 rounded-xl border border-black/8 bg-black/[0.03] px-4 py-3 transition-colors hover:bg-black/[0.06]"
+              >
+                <span className="font-ui text-[10px] uppercase tracking-[0.2em] text-black/40">
+                  Phone
+                </span>
+                <span className="font-ui text-[13px] text-black/80">
+                  +91 9910024492
+                </span>
+              </a>
+            </div>
           </motion.div>
-        ) : null}
+        )}
       </AnimatePresence>
 
+      {/* Mobile menu */}
       <AnimatePresence>
-        {menuOpen ? (
+        {menuOpen && (
           <motion.div
             id="site-menu"
             initial={{ opacity: 0, y: -12 }}
@@ -277,42 +274,51 @@ export function SiteNavbar() {
             className="pointer-events-auto mx-5 rounded-[1.75rem] border border-black/10 bg-white/84 p-5 shadow-[0_20px_60px_rgba(18,18,18,0.12)] backdrop-blur-xl sm:mx-8 md:hidden"
           >
             <div className="flex flex-col gap-3">
+              <NavLink href="/projects" onClick={() => setMenuOpen(false)}>
+                Projects
+              </NavLink>
+              <NavLink href="/playground" onClick={() => setMenuOpen(false)}>
+                Playground
+              </NavLink>
               <button
                 type="button"
-                className="font-ui rounded-full bg-[#121212] px-4 py-3 text-center text-[11px] uppercase tracking-[0.22em] text-[#FAFAFA]"
-              >
-                Get Started
-              </button>
-              <Link
-                href="/services"
-                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
-                onClick={() => setMenuOpen(false)}
-              >
-                Services
-              </Link>
-              <button
-                type="button"
-                onClick={() => togglePanel("pricing")}
-                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
-              >
-                Pricing
-              </button>
-              <button
-                type="button"
+                onClick={() => togglePanel("contact")}
                 className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
               >
                 Contact
               </button>
-              <Link
-                href="/about"
-                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
-                onClick={() => setMenuOpen(false)}
-              >
+              <NavLink href="/about" onClick={() => setMenuOpen(false)}>
                 About
-              </Link>
+              </NavLink>
             </div>
+
+            {/* Contact info inline for mobile */}
+            <AnimatePresence>
+              {activePanel === "contact" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-4 flex flex-col gap-2 overflow-hidden"
+                >
+                  <a
+                    href="mailto:arkin2005@gmail.com"
+                    className="font-ui text-[12px] text-black/60"
+                  >
+                    arkin2005@gmail.com
+                  </a>
+                  <a
+                    href="tel:+919910024492"
+                    className="font-ui text-[12px] text-black/60"
+                  >
+                    +91 9910024492
+                  </a>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
-        ) : null}
+        )}
       </AnimatePresence>
     </header>
   );
