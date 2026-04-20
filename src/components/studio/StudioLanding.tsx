@@ -805,6 +805,196 @@ function TipPopout({ disabled }: { disabled?: boolean }) {
   );
 }
 
+// ─── Template data ─────────────────────────────────────────────────────────────
+
+const GAMMA_TEMPLATES = [
+  { name: "Executive Summary",                          gammaId: "tc6m61td9jqczxu", photo: "/template_photos/executive summary.avif"                                          },
+  { name: "Market Sizing Framework",                    gammaId: "mxywd7rmg38m1kt", photo: "/template_photos/Market-Sizing-Framework.avif"                                    },
+  { name: "Experiment Report",                          gammaId: "m14oo8li7bpdpgq", photo: "/template_photos/experiment report.avif"                                          },
+  { name: "Company Presentation Template Ultraviolet",  gammaId: "hvw22cqfh3ce17g", photo: "/template_photos/company-presentation-template-ultraviolet.avif"                 },
+  { name: "Lecture Plan",                               gammaId: "vfl9uqgdcx02ouq", photo: "/template_photos/Lecture-Plan.avif"                                               },
+  { name: "Monthly Letter Newsletter",                  gammaId: "ww16nr48qsbd933", photo: "/template_photos/monthly letter newsletter.avif"                                  },
+  { name: "Project Timeline",                           gammaId: "okat05db8l6mqbt", photo: "/template_photos/project timeline.avif"                                           },
+  { name: "Partnership Proposal",                       gammaId: "txz8w2r2ube0l7r", photo: "/template_photos/Partnership-Proposal.avif"                                       },
+  { name: "Training Program Overview",                  gammaId: "modje8pg0hcaqwo", photo: "/template_photos/training program overview.avif"                                  },
+  { name: "Freelance Services That Elevate Your Business", gammaId: "i1pcaukwdi6ejpg", photo: "/template_photos/Freelance-Services-That-Elevate-Your-Business.avif"         },
+  { name: "Rebrand Proposal",                           gammaId: "dn7ixjz48jn75p4", photo: "/template_photos/Rebrand-Proposal.avif"                                          },
+  { name: "Client Design Review",                       gammaId: "39aeu6rphhzqjnm", photo: "/template_photos/Client-Design-Review.avif"                                      },
+  { name: "Mood Board",                                 gammaId: "l21kgj3ozc0nbb7", photo: "/template_photos/Mood-Board.avif"                                                 },
+  { name: "Engagement Kickoff",                         gammaId: "cw8miamdbcuix2g", photo: "/template_photos/Engagement-Kickoff.avif"                                        },
+  { name: "Company Presentation Template Primer",       gammaId: "bpmic5vczcp7wyg", photo: "/template_photos/company-presentation-template-primer.avif"                     },
+  { name: "Capabilities",                               gammaId: "txz3r16c23wkvqo", photo: "/template_photos/Capabilities.avif"                                              },
+  { name: "Sales Incentive",                            gammaId: "51vxh70upqlf90b", photo: "/template_photos/sales incentive.avif"                                           },
+  { name: "Brand Guidelines",                           gammaId: "8031m8uwg626diu", photo: "/template_photos/Brand-Guidelines.avif"                                          },
+  { name: "Team Retrospective",                         gammaId: "7mc6a2s1l5hmkb3", photo: "/template_photos/Team-Retrospective__1_.avif"                                    },
+  { name: "Our Team",                                   gammaId: "1bjx27w6cv1zldy", photo: "/template_photos/Our-Team.avif"                                                  },
+] as const;
+
+// ─── Template selector ─────────────────────────────────────────────────────────
+
+interface TemplateSelectorProps {
+  onSelect: (gammaId: string) => void;
+}
+
+const TemplateSelector = memo(function TemplateSelector({ onSelect }: TemplateSelectorProps) {
+  return (
+    <div className="p-4 sm:p-5 md:p-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {GAMMA_TEMPLATES.map((tpl) => (
+          <motion.button
+            key={tpl.gammaId}
+            type="button"
+            onClick={() => onSelect(tpl.gammaId)}
+            whileHover={{ y: -4, scale: 1.02, transition: { type: "spring", stiffness: 400, damping: 22 } }}
+            whileTap={{ scale: 0.96 }}
+            className="group flex flex-col gap-2 rounded-xl border border-[var(--line)] bg-[var(--background)]/70 p-2 text-left shadow-sm transition-shadow duration-200 hover:shadow-[0_6px_20px_rgba(0,0,0,0.1)]"
+          >
+            <div className="aspect-[4/3] w-full overflow-hidden rounded-lg bg-[var(--muted)]/10">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={tpl.photo}
+                alt={tpl.name}
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <p className="font-ui px-0.5 pb-0.5 text-[10px] leading-snug text-[var(--foreground)] sm:text-[11px]">
+              {tpl.name}
+            </p>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  );
+});
+
+// ─── Template chatbox ──────────────────────────────────────────────────────────
+
+interface TemplateChatboxProps {
+  gammaId: string;
+  templateName: string;
+  templatePhoto: string;
+  onBack: () => void;
+  onCreated: (result: GammaResult) => void;
+  onCreatingChange: (loading: boolean) => void;
+}
+
+const TemplateChatbox = memo(function TemplateChatbox({
+  gammaId,
+  templateName,
+  templatePhoto,
+  onBack,
+  onCreated,
+  onCreatingChange,
+}: TemplateChatboxProps) {
+  const [prompt, setPrompt]       = useState("");
+  const [theme, setTheme]         = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
+
+  async function handleCreate() {
+    if (!prompt.trim() || isLoading) return;
+    setError(null);
+    setIsLoading(true);
+    onCreatingChange(true);
+
+    try {
+      const res = await fetch("/api/gamma/generate-from-template", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: prompt.trim(), gammaId, themeId: theme || undefined }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data?.error ?? "Generation failed. Please try again.");
+        return;
+      }
+
+      onCreated(data as GammaResult);
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+      onCreatingChange(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3 p-4 sm:p-5 md:p-6">
+
+      {/* Selected template chip */}
+      <div className="flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isLoading}
+          className="flex items-center gap-1 text-[11px] text-[var(--muted)] transition-colors hover:text-[var(--foreground)] disabled:opacity-40"
+        >
+          <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="10 4 6 8 10 12" />
+          </svg>
+          Back
+        </button>
+        <div className="flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--background)]/60 px-2.5 py-1.5">
+          <div className="h-7 w-10 shrink-0 overflow-hidden rounded-md">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={templatePhoto} alt={templateName} className="h-full w-full object-cover" />
+          </div>
+          <span className="font-ui text-[11px] text-[var(--foreground)]">{templateName}</span>
+        </div>
+      </div>
+
+      {/* Textarea */}
+      <textarea
+        value={prompt}
+        onChange={(e) => setPrompt(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleCreate();
+        }}
+        placeholder="Describe how you'd like to adapt this template…"
+        disabled={isLoading}
+        rows={4}
+        className="font-ui w-full resize-none rounded-xl border border-[var(--line)] bg-[var(--background)]/90 px-4 py-3 text-[13px] leading-relaxed text-[var(--foreground)] placeholder:text-[var(--muted)]/45 transition-shadow focus:outline-none focus:ring-2 focus:ring-blue-400/25 sm:text-[14px] disabled:opacity-50"
+        style={{ minHeight: "100px" }}
+      />
+
+      {/* Error */}
+      {error && (
+        <p className="font-ui rounded-lg border border-red-200/60 bg-red-50/60 px-3.5 py-2.5 text-[11px] text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400 sm:text-[12px]">
+          {error}
+        </p>
+      )}
+
+      {/* Toolbar */}
+      <div className="flex items-center gap-2.5">
+        <ThemePicker value={theme} onChange={setTheme} disabled={isLoading} />
+        <div className="flex-1" />
+        {!isLoading && (
+          <span className="font-ui hidden text-[10px] text-[var(--muted)]/40 sm:block">
+            ⌘↵ to create
+          </span>
+        )}
+        <button
+          type="button"
+          onClick={handleCreate}
+          disabled={isLoading || !prompt.trim()}
+          className="font-ui shrink-0 inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-2 text-[12px] font-medium text-white transition-colors duration-200 hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:text-[13px]"
+        >
+          {isLoading ? (
+            <>
+              <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="32" strokeDashoffset="12" strokeLinecap="round" />
+              </svg>
+              Creating…
+            </>
+          ) : "Create"}
+        </button>
+      </div>
+    </div>
+  );
+});
+
 // ─── Slide card ────────────────────────────────────────────────────────────────
 
 
@@ -1013,6 +1203,7 @@ export default function StudioLanding() {
   const [activeDetailTab, setActiveDetailTab] = useState<ServiceId>("website");
   const [slideDir,       setSlideDir]       = useState<1 | -1>(1);
   const [activePresentationTab, setActivePresentationTab] = useState<string | null>(null);
+  const [selectedTemplateId,    setSelectedTemplateId]    = useState<string | null>(null);
   // presentationMode drives the expensive layout change (outer container, folder height)
   // and is deferred via useTransition so it doesn't block the slide animation start
   const [presentationMode, setPresentationMode] = useState(false);
@@ -1043,6 +1234,7 @@ export default function StudioLanding() {
       setSlideDir(-1);
       setPresentationMode(false);
       setActivePresentationTab(null);
+      setSelectedTemplateId(null);
       setGammaResult(null);
     } else if (selectedService) {
       setSlideDir(-1);
@@ -1070,6 +1262,19 @@ export default function StudioLanding() {
         onSlideSettledRef.current = null;
       };
     }
+  }, []);
+
+  const handleSelectTemplate = useCallback((gammaId: string) => {
+    setSelectedTemplateId(gammaId);
+    if (!presentationModeRef.current) {
+      setPresentationMode(true);
+    }
+  }, []);
+
+  const handleBackToSelector = useCallback(() => {
+    setSelectedTemplateId(null);
+    setPresentationMode(false);
+    setGammaResult(null);
   }, []);
 
   return (
@@ -1145,11 +1350,13 @@ export default function StudioLanding() {
                Framer Motion promotes it automatically during the animation; keeping will-change permanently
                would waste a GPU layer for the component's entire lifetime. */
             className={`relative w-[92vw] max-w-[1160px] overflow-hidden transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[height] ${
-              presentationMode && activePresentationTab === "text"
-                ? "h-[36rem]"
-                : presentationMode
-                  ? "h-[22rem]"
-                  : "h-[29rem]"
+              activePresentationTab === "template" && !selectedTemplateId
+                ? "h-[38rem]"
+                : presentationMode && activePresentationTab === "text"
+                  ? "h-[36rem]"
+                  : presentationMode
+                    ? "h-[22rem]"
+                    : "h-[29rem]"
             }`}
           >
             <AnimatePresence custom={slideDir} mode="sync" initial={false}>
@@ -1451,6 +1658,43 @@ export default function StudioLanding() {
                             onCreated={setGammaResult}
                             onCreatingChange={setIsGenerating}
                           />
+                        )}
+                        {activePresentationTab === "template" && (
+                          <AnimatePresence mode="wait" initial={false}>
+                            {!selectedTemplateId ? (
+                              <motion.div
+                                key="template-selector"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                <TemplateSelector onSelect={handleSelectTemplate} />
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key={`template-chatbox-${selectedTemplateId}`}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
+                              >
+                                {(() => {
+                                  const tpl = GAMMA_TEMPLATES.find((t) => t.gammaId === selectedTemplateId);
+                                  return tpl ? (
+                                    <TemplateChatbox
+                                      gammaId={tpl.gammaId}
+                                      templateName={tpl.name}
+                                      templatePhoto={tpl.photo}
+                                      onBack={handleBackToSelector}
+                                      onCreated={setGammaResult}
+                                      onCreatingChange={setIsGenerating}
+                                    />
+                                  ) : null;
+                                })()}
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         )}
                       </motion.div>
                     </AnimatePresence>
