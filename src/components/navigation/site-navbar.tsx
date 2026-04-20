@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -166,14 +165,9 @@ export function SiteNavbar() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40">
       <div className="pointer-events-auto mx-auto flex w-full max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8">
         <Link href="/" className="flex items-center transition-opacity duration-200 hover:opacity-75">
-          <Image
-            src="/logo.png"
-            alt="PitchWorx"
-            width={80}
-            height={80}
-            className="logo-adaptive h-[55px] w-[55px] object-contain sm:h-[65px] sm:w-[65px] md:h-[80px] md:w-[80px]"
-            priority
-          />
+          <span className="font-display text-[1.4rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.6rem] md:text-[1.8rem]">
+            Ishark
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-3 md:flex lg:gap-4 xl:gap-5">
@@ -207,18 +201,6 @@ export function SiteNavbar() {
           >
             About
           </Link>
-          <button
-            type="button"
-            onClick={() => togglePanel("login")}
-            aria-expanded={activePanel === "login"}
-            aria-label="Login"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/78 text-black/62 shadow-[0_12px_30px_rgba(18,18,18,0.06)] backdrop-blur-md transition-colors duration-200 hover:text-black/84"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden>
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            </svg>
-          </button>
           <button
             type="button"
             onClick={toggleTheme}
@@ -328,13 +310,6 @@ export function SiteNavbar() {
               >
                 About
               </Link>
-              <button
-                type="button"
-                onClick={() => togglePanel("login")}
-                className="font-ui text-left text-[11px] uppercase tracking-[0.22em] text-black/62"
-              >
-                Login
-              </button>
             </div>
           </motion.div>
         ) : null}
