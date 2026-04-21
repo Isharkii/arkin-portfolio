@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { AuroraBackgroundFixed } from "@/components/ui/aurora-background";
 
 const inputClass =
   "w-full rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-4 py-3 font-ui text-[13px] text-[var(--foreground)] placeholder:text-[var(--muted)] outline-none transition-colors duration-150 focus:border-[var(--muted)] focus:bg-[var(--surface)]";
@@ -21,11 +20,6 @@ export default function ContactLanding() {
 
   return (
     <div className="min-h-screen w-full">
-      <AuroraBackgroundFixed showRadialGradient />
-      <div aria-hidden className="pointer-events-none fixed left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none fixed bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
-      <div aria-hidden className="bg-paper-grid pointer-events-none fixed inset-0 opacity-30" />
-
       <div className="relative z-10 mx-auto w-full max-w-[700px] px-6 py-[100px] sm:px-10 sm:py-[110px] md:px-8 md:py-[120px]">
 
         <motion.p

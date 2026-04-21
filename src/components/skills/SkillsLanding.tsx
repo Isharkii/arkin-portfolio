@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { AuroraBackgroundFixed } from "@/components/ui/aurora-background";
 
 const skillGroups = [
   {
@@ -42,11 +41,6 @@ export default function SkillsLanding() {
 
   return (
     <div className="min-h-screen w-full">
-      <AuroraBackgroundFixed showRadialGradient />
-      <div aria-hidden className="pointer-events-none fixed left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none fixed bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
-      <div aria-hidden className="bg-paper-grid pointer-events-none fixed inset-0 opacity-30" />
-
       {/* Left arrow — Work */}
       <div className="fixed left-8 top-1/2 z-40 -translate-y-1/2">
         <motion.button

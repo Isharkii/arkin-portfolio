@@ -2,13 +2,12 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { AuroraBackgroundFixed } from "@/components/ui/aurora-background";
 
 const experience = [
   {
     company: "REBEE.AI",
     role: "Backend & AI/ML Engineer",
-    period: "2024",
+    period: "2025",
     gradient: "linear-gradient(135deg, #7c2d12 0%, #ea580c 100%)",
     points: [
       { label: "What", text: "Built a transformer-based NLP pipeline to summarise and extract structured data from resumes at scale." },
@@ -20,7 +19,7 @@ const experience = [
   {
     company: "PitchWorx",
     role: "Backend & LLM Engineer",
-    period: "2024–2025",
+    period: "2026",
     gradient: "linear-gradient(135deg, #4a0e3a 0%, #c2185b 100%)",
     points: [
       { label: "What", text: "Engineered a competitor benchmarking engine using LLMs to generate structured analysis outputs." },
@@ -36,11 +35,6 @@ export default function WorkLanding() {
 
   return (
     <div className="min-h-screen w-full">
-      <AuroraBackgroundFixed showRadialGradient />
-      <div aria-hidden className="pointer-events-none fixed left-[-8%] top-[-10%] h-[clamp(12rem,26vw,28rem)] w-[clamp(12rem,26vw,28rem)] rounded-full bg-[var(--spot-b)] opacity-40 blur-3xl" />
-      <div aria-hidden className="pointer-events-none fixed bottom-[-12%] right-[-6%] h-[clamp(10rem,20vw,22rem)] w-[clamp(10rem,20vw,22rem)] rounded-full bg-[var(--spot-a)] opacity-40 blur-3xl" />
-      <div aria-hidden className="bg-paper-grid pointer-events-none fixed inset-0 opacity-30" />
-
       {/* Right arrow — Skills */}
       <div className="fixed right-8 top-1/2 z-40 -translate-y-1/2">
         <motion.button

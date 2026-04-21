@@ -3,6 +3,7 @@ import { Halant } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SiteNavbar } from "@/components/navigation/site-navbar";
+import { GlobalBackground } from "@/components/ui/global-background";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -46,6 +47,7 @@ export default function RootLayout({
       >
         {/* Navbar lives here — outside template.tsx — so it never
             participates in page-to-page slide transitions. */}
+        <GlobalBackground />
         <SiteNavbar />
         {children}
       </body>
