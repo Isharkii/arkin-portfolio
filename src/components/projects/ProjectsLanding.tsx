@@ -77,18 +77,18 @@ export default function ProjectsLanding() {
       <div className="relative z-10 mx-auto w-full max-w-[1060px] px-6 py-[100px] sm:px-10 sm:py-[110px] md:px-8 md:py-[120px]">
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.06, ease: "easeOut" }}
+          transition={{ duration: 0.32, delay: 0.05, ease: "easeOut" }}
           className="font-ui text-[10px] uppercase tracking-[0.32em] text-[var(--muted)]"
         >
           Work
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
+          transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
           className="font-display mt-4 text-[clamp(1.8rem,4.5vw,4.5rem)] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)]"
         >
           Selected Projects
@@ -97,17 +97,19 @@ export default function ProjectsLanding() {
         <motion.div
           initial={{ scaleX: 0, originX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.28, ease: "easeOut" }}
+          transition={{ duration: 0.4, delay: 0.18, ease: "easeOut" }}
           className="mt-8 h-px w-full bg-[var(--line)]"
         />
 
-        <div className="mt-10 grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, i) => (
-            <motion.div
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, delay: 0.24, ease: "easeOut" }}
+          className="mt-10 grid grid-cols-1 gap-4 pb-16 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {projects.map((project) => (
+            <div
               key={project.id}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.34 + i * 0.07, ease: "easeOut" }}
               className="overflow-hidden rounded-2xl border border-[var(--line)]"
             >
               {/* Gradient header */}
@@ -143,9 +145,9 @@ export default function ProjectsLanding() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </div>

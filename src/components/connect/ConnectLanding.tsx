@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { AuroraBackgroundFixed } from "@/components/ui/aurora-background";
 
@@ -12,7 +13,7 @@ const profiles = [
     url: "https://github.com/Isharkii",
     gradient: "linear-gradient(135deg, #0f0c29 0%, #302b63 60%, #24243e 100%)",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
         <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
       </svg>
     ),
@@ -25,7 +26,7 @@ const profiles = [
     url: "https://www.linkedin.com/in/arkin-sharma-8b359b327/",
     gradient: "linear-gradient(135deg, #0c4a6e 0%, #0369a1 60%, #0ea5e9 100%)",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
       </svg>
     ),
@@ -38,14 +39,28 @@ const profiles = [
     url: "https://leetcode.com/u/Isharkii/",
     gradient: "linear-gradient(135deg, #7c2d12 0%, #c2410c 60%, #ea580c 100%)",
     icon: (
-      <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5" aria-hidden="true">
         <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
       </svg>
     ),
   },
 ];
 
+const inputClass =
+  "w-full rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-4 py-3 font-ui text-[13px] text-[var(--foreground)] placeholder:text-[var(--muted)] outline-none transition-colors duration-150 focus:border-[var(--muted)] focus:bg-[var(--surface)]";
+
 export default function ConnectLanding() {
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+
+  const handleSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    const body = `Hi Arkin,\n\n${message}\n\n— ${name}`;
+    const url = `mailto:arkin2005@gmail.com?subject=${encodeURIComponent(subject || "Hello from your portfolio")}&body=${encodeURIComponent(body)}`;
+    window.location.href = url;
+  };
+
   return (
     <div className="min-h-screen w-full">
       <AuroraBackgroundFixed showRadialGradient />
@@ -55,64 +70,186 @@ export default function ConnectLanding() {
 
       <div className="relative z-10 mx-auto w-full max-w-[700px] px-6 py-[100px] sm:px-10 sm:py-[110px] md:px-8 md:py-[120px]">
 
+        {/* Header */}
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.06, ease: "easeOut" }}
+          transition={{ duration: 0.35, delay: 0.05, ease: "easeOut" }}
           className="font-ui text-[10px] uppercase tracking-[0.32em] text-[var(--muted)]"
         >
-          Find me online
+          Get in touch
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
+          transition={{ duration: 0.38, delay: 0.12, ease: "easeOut" }}
           className="font-display mt-4 text-[clamp(1.8rem,4.5vw,4.5rem)] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)]"
         >
-          Connect
+          Let&apos;s build something.
         </motion.h1>
 
         <motion.div
           initial={{ scaleX: 0, originX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.28, ease: "easeOut" }}
+          transition={{ duration: 0.45, delay: 0.22, ease: "easeOut" }}
           className="mt-8 h-px w-full bg-[var(--line)]"
         />
 
-        <div className="mt-10 flex flex-col gap-4 pb-16">
+        {/* Direct contact cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.28, ease: "easeOut" }}
+          className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2"
+        >
+          <a
+            href="mailto:arkin2005@gmail.com"
+            className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] px-5 py-4 transition-opacity duration-150 hover:opacity-75"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4 text-[var(--muted)]" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m2 7 10 7 10-7" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Email</p>
+              <p className="font-ui mt-0.5 truncate text-[12px] text-[var(--foreground)]">arkin2005@gmail.com</p>
+            </div>
+          </a>
+
+          <a
+            href="tel:+919910024492"
+            className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface-soft)] px-5 py-4 transition-opacity duration-150 hover:opacity-75"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)]">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-4 w-4 text-[var(--muted)]" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.95 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.87 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 5.99 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <p className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">Phone</p>
+              <p className="font-ui mt-0.5 text-[12px] text-[var(--foreground)]">+91 9910024492</p>
+            </div>
+          </a>
+        </motion.div>
+
+        {/* Email compose form */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, delay: 0.36, ease: "easeOut" }}
+          className="mt-8 overflow-hidden rounded-2xl border border-[var(--line)]"
+        >
+          <div className="border-b border-[var(--line)] px-5 py-4" style={{ background: "linear-gradient(135deg, #1a1035 0%, #2d1b69 60%, #4a1c96 100%)" }}>
+            <p className="font-ui text-[10px] uppercase tracking-[0.26em] text-white/70">Send a message</p>
+            <p className="font-display mt-1 text-[clamp(1rem,1.6vw,1.2rem)] leading-snug tracking-[-0.02em] text-white">
+              Opens in your email client
+            </p>
+          </div>
+
+          <form onSubmit={handleSend} className="flex flex-col gap-3 bg-[var(--surface-soft)] p-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-1.5">
+                <label className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Your name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Jane Doe"
+                  className={inputClass}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Collaboration opportunity"
+                  className={inputClass}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="font-ui text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                Message
+              </label>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Hi Arkin, I'd love to work together on..."
+                rows={5}
+                className={`${inputClass} resize-none`}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-[var(--foreground)] px-5 py-3 font-ui text-[11px] uppercase tracking-[0.22em] text-[var(--surface-contrast)] transition-opacity duration-150 hover:opacity-80"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4" aria-hidden="true">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Send via email
+            </button>
+          </form>
+        </motion.div>
+
+        {/* Divider */}
+        <motion.div
+          initial={{ scaleX: 0, originX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.45, delay: 0.44, ease: "easeOut" }}
+          className="mt-12 h-px w-full bg-[var(--line)]"
+        />
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.5, ease: "easeOut" }}
+          className="font-ui mt-6 text-[10px] uppercase tracking-[0.32em] text-[var(--muted)]"
+        >
+          Find me online
+        </motion.p>
+
+        {/* Social profiles */}
+        <div className="mt-4 flex flex-col gap-3 pb-16">
           {profiles.map((profile, i) => (
             <motion.a
               key={profile.id}
               href={profile.url}
               target="_blank"
               rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.34 + i * 0.1, ease: "easeOut" }}
-              className="group overflow-hidden rounded-2xl border border-[var(--line)] transition-transform duration-200 hover:-translate-y-0.5"
+              transition={{ duration: 0.32, delay: 0.54 + i * 0.07, ease: "easeOut" }}
+              className="group overflow-hidden rounded-2xl border border-[var(--line)] transition-opacity duration-150 hover:opacity-80"
             >
-              {/* Gradient header */}
-              <div className="flex items-center gap-4 px-6 py-5" style={{ background: profile.gradient }}>
+              <div className="flex items-center gap-4 px-5 py-4" style={{ background: profile.gradient }}>
                 <div className="text-white">{profile.icon}</div>
                 <div>
-                  <h2 className="font-display text-[clamp(1.1rem,1.8vw,1.4rem)] leading-none tracking-[-0.03em] text-white">
+                  <h2 className="font-display text-[clamp(1rem,1.6vw,1.2rem)] leading-none tracking-[-0.03em] text-white">
                     {profile.label}
                   </h2>
-                  <p className="font-ui mt-1 text-[11px] tracking-[0.08em] text-white/70">
+                  <p className="font-ui mt-1 text-[10px] tracking-[0.08em] text-white/70">
                     @{profile.handle}
                   </p>
                 </div>
                 <div className="ml-auto">
-                  <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4 text-white/70 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" stroke="currentColor" strokeWidth="1.8">
+                  <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4 text-white/60 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" stroke="currentColor" strokeWidth="1.8">
                     <path d="M3 13L13 3M13 3H7M13 3V9" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
-
-              {/* Description */}
-              <div className="bg-[var(--surface-soft)] px-6 py-4">
-                <p className="font-ui text-[13px] leading-[1.65] text-[var(--muted)]">
+              <div className="bg-[var(--surface-soft)] px-5 py-3">
+                <p className="font-ui text-[12px] leading-[1.65] text-[var(--muted)]">
                   {profile.description}
                 </p>
               </div>

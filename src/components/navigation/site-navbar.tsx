@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type ThemeMode = "light" | "dark";
-type NavPanel = "contact" | null;
 
 const storageKey = "pitchworx-theme";
 
@@ -33,7 +32,6 @@ export function SiteNavbar() {
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activePanel, setActivePanel] = useState<NavPanel>(null);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem(storageKey);
@@ -53,7 +51,7 @@ export function SiteNavbar() {
       setTheme(systemTheme);
     };
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { setMenuOpen(false); setActivePanel(null); }
+      if (event.key === "Escape") { setMenuOpen(false); }
     };
     mediaQuery.addEventListener("change", handlePreferenceChange);
     window.addEventListener("keydown", handleEscape);
@@ -77,11 +75,6 @@ export function SiteNavbar() {
     setTheme(nextTheme);
   };
 
-  const togglePanel = (panel: Exclude<NavPanel, null>) => {
-    setActivePanel((current) => (current === panel ? null : panel));
-    setMenuOpen(false);
-  };
-
   const navLinkClass = "font-ui text-[11px] uppercase tracking-[0.22em] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]";
 
   return (
@@ -96,15 +89,7 @@ export function SiteNavbar() {
         {/* Desktop nav */}
         <nav className="hidden items-center gap-3 md:flex lg:gap-4 xl:gap-5">
           <Link href="/projects" className={navLinkClass}>Projects</Link>
-          <Link href="/connect" className={navLinkClass}>Connect</Link>
-          <button
-            type="button"
-            onClick={() => togglePanel("contact")}
-            aria-expanded={activePanel === "contact"}
-            className={navLinkClass}
-          >
-            Contact
-          </button>
+          <Link href="/connect" className={navLinkClass}>Contact</Link>
           <Link href="/about" className={navLinkClass}>About</Link>
           <button
             type="button"
@@ -129,7 +114,7 @@ export function SiteNavbar() {
           </button>
           <button
             type="button"
-            onClick={() => { setMenuOpen((o) => !o); setActivePanel(null); }}
+            onClick={() => { setMenuOpen((o) => !o); }}
             className="pointer-events-auto font-ui text-[11px] uppercase tracking-[0.22em] text-[var(--muted)] transition-colors duration-200 hover:text-[var(--foreground)]"
             aria-expanded={menuOpen}
             aria-controls="site-menu"
@@ -138,42 +123,6 @@ export function SiteNavbar() {
           </button>
         </div>
       </div>
-
-      {/* Contact panel */}
-      <AnimatePresence>
-        {activePanel === "contact" && (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="pointer-events-auto mx-auto mt-1 w-[min(92vw,22rem)] rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_20px_60px_rgba(18,18,18,0.18)] backdrop-blur-xl"
-          >
-            <p className="font-ui text-[10px] uppercase tracking-[0.26em] text-[var(--muted)]">
-              Get in touch
-            </p>
-            <h2 className="font-display mt-3 text-2xl leading-[0.92] tracking-[-0.04em] text-[var(--foreground)]">
-              Let&apos;s build something.
-            </h2>
-            <div className="mt-4 flex flex-col gap-2">
-              <a
-                href="mailto:arkin2005@gmail.com"
-                className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-4 py-3 transition-opacity hover:opacity-80"
-              >
-                <span className="font-ui text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">Email</span>
-                <span className="font-ui text-[13px] text-[var(--foreground)]">arkin2005@gmail.com</span>
-              </a>
-              <a
-                href="tel:+919910024492"
-                className="flex items-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--surface-soft)] px-4 py-3 transition-opacity hover:opacity-80"
-              >
-                <span className="font-ui text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">Phone</span>
-                <span className="font-ui text-[13px] text-[var(--foreground)]">+91 9910024492</span>
-              </a>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Mobile menu */}
       <AnimatePresence>
@@ -188,24 +137,9 @@ export function SiteNavbar() {
           >
             <div className="flex flex-col gap-3">
               <Link href="/projects" className={navLinkClass} onClick={() => setMenuOpen(false)}>Projects</Link>
-              <Link href="/connect" className={navLinkClass} onClick={() => setMenuOpen(false)}>Connect</Link>
-              <button type="button" onClick={() => togglePanel("contact")} className={`${navLinkClass} text-left`}>Contact</button>
+              <Link href="/connect" className={navLinkClass} onClick={() => setMenuOpen(false)}>Contact</Link>
               <Link href="/about" className={navLinkClass} onClick={() => setMenuOpen(false)}>About</Link>
             </div>
-            <AnimatePresence>
-              {activePanel === "contact" && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="mt-4 flex flex-col gap-2 overflow-hidden"
-                >
-                  <a href="mailto:arkin2005@gmail.com" className="font-ui text-[12px] text-[var(--foreground)]">arkin2005@gmail.com</a>
-                  <a href="tel:+919910024492" className="font-ui text-[12px] text-[var(--foreground)]">+91 9910024492</a>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
