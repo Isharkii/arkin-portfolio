@@ -88,6 +88,16 @@ export function SiteNavbar() {
 
         {/* Desktop nav */}
         <nav className="hidden items-center gap-3 md:flex lg:gap-4 xl:gap-5">
+          <Link
+            href="/"
+            aria-label="Home"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--surface)] text-[var(--muted)] backdrop-blur-md transition-colors duration-200 hover:text-[var(--foreground)]"
+          >
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-[14px] w-[14px]" aria-hidden="true">
+              <path d="M3 9.5L10 3l7 6.5" />
+              <path d="M5 8v8a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V8" />
+            </svg>
+          </Link>
           <Link href="/projects" className={navLinkClass}>Projects</Link>
           <Link href="/connect" className={navLinkClass}>Connect</Link>
           <Link href="/contact" className={navLinkClass}>Contact</Link>
@@ -137,6 +147,7 @@ export function SiteNavbar() {
             className="pointer-events-auto mx-5 rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_20px_60px_rgba(18,18,18,0.18)] backdrop-blur-xl sm:mx-8 md:hidden"
           >
             <div className="flex flex-col gap-3">
+              <Link href="/" className={navLinkClass} onClick={() => setMenuOpen(false)}>Home</Link>
               <Link href="/projects" className={navLinkClass} onClick={() => setMenuOpen(false)}>Projects</Link>
               <Link href="/connect" className={navLinkClass} onClick={() => setMenuOpen(false)}>Connect</Link>
               <Link href="/contact" className={navLinkClass} onClick={() => setMenuOpen(false)}>Contact</Link>

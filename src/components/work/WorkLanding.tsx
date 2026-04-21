@@ -40,7 +40,7 @@ export default function WorkLanding() {
         <motion.button
           initial={{ opacity: 0, x: 14 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.45, delay: 0.55, ease: "easeOut" }}
+          transition={{ duration: 0.35, delay: 0.32, ease: "easeOut" }}
           whileHover={{ x: 5 }}
           whileTap={{ scale: 0.94 }}
           onClick={() => router.push("/skills")}
@@ -60,18 +60,18 @@ export default function WorkLanding() {
       <div className="relative z-10 mx-auto w-full max-w-[860px] px-6 py-[100px] sm:px-10 sm:py-[110px] md:px-8 md:py-[120px]">
 
         <motion.p
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.06, ease: "easeOut" }}
+          transition={{ duration: 0.32, delay: 0.05, ease: "easeOut" }}
           className="font-ui text-[10px] uppercase tracking-[0.32em] text-[var(--muted)]"
         >
           Experience
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 22 }}
+          initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.14, ease: "easeOut" }}
+          transition={{ duration: 0.35, delay: 0.1, ease: "easeOut" }}
           className="font-display mt-4 text-[clamp(1.8rem,4.5vw,4.5rem)] leading-[0.88] tracking-[-0.03em] text-[var(--foreground)]"
         >
           Work
@@ -80,7 +80,7 @@ export default function WorkLanding() {
         <motion.div
           initial={{ scaleX: 0, originX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ duration: 0.5, delay: 0.28, ease: "easeOut" }}
+          transition={{ duration: 0.4, delay: 0.18, ease: "easeOut" }}
           className="mt-8 h-px w-full bg-[var(--line)]"
         />
 
@@ -88,9 +88,9 @@ export default function WorkLanding() {
           {experience.map((exp, i) => (
             <motion.div
               key={exp.company}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.34 + i * 0.12, ease: "easeOut" }}
+              transition={{ duration: 0.38, delay: 0.24 + i * 0.1, ease: "easeOut" }}
               className="overflow-hidden rounded-2xl border border-[var(--line)]"
             >
               <div className="px-6 py-5" style={{ background: exp.gradient }}>
