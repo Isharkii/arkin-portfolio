@@ -89,7 +89,8 @@ export function SiteNavbar() {
         {/* Desktop nav */}
         <nav className="hidden items-center gap-3 md:flex lg:gap-4 xl:gap-5">
           <Link href="/projects" className={navLinkClass}>Projects</Link>
-          <Link href="/connect" className={navLinkClass}>Contact</Link>
+          <Link href="/connect" className={navLinkClass}>Connect</Link>
+          <Link href="/contact" className={navLinkClass}>Contact</Link>
           <Link href="/about" className={navLinkClass}>About</Link>
           <button
             type="button"
@@ -137,7 +138,8 @@ export function SiteNavbar() {
           >
             <div className="flex flex-col gap-3">
               <Link href="/projects" className={navLinkClass} onClick={() => setMenuOpen(false)}>Projects</Link>
-              <Link href="/connect" className={navLinkClass} onClick={() => setMenuOpen(false)}>Contact</Link>
+              <Link href="/connect" className={navLinkClass} onClick={() => setMenuOpen(false)}>Connect</Link>
+              <Link href="/contact" className={navLinkClass} onClick={() => setMenuOpen(false)}>Contact</Link>
               <Link href="/about" className={navLinkClass} onClick={() => setMenuOpen(false)}>About</Link>
             </div>
           </motion.div>
